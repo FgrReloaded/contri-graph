@@ -2,7 +2,11 @@
 
 import { useState } from 'react';
 import type { ContributionDay, AllYearsData } from '@/types/contributions';
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 interface ContributionGraphProps {
   data: AllYearsData;
   selectedYear?: string;
@@ -18,6 +22,7 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function ContributionGraph({ data, selectedYear, onYearChange }: ContributionGraphProps) {
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const contributions = Array.isArray(data.contributions)
     ? data.contributions
@@ -28,8 +33,8 @@ export function ContributionGraph({ data, selectedYear, onYearChange }: Contribu
     : Object.keys(data.years);
 
   const currentYearContributions = selectedYear
-    ? contributions.filter(day => day.date.startsWith(selectedYear))
-    : contributions.slice(0, 365);
+    ? contributions.filter(day => day.date.startsWith(selectedYear)).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    : contributions.slice(0, 365).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const getWeeksInYear = (contributions: ContributionDay[]) => {
     if (contributions.length === 0) return [];
@@ -109,14 +114,6 @@ export function ContributionGraph({ data, selectedYear, onYearChange }: Contribu
         </div>
 
         <div className="flex">
-          <div className="flex flex-col justify-between text-xs text-gray-600 pr-2 h-21">
-            {WEEKDAYS.map((day, index) => (
-              <div key={day} className="h-3 flex items-center">
-                {index % 2 === 1 ? day : ''}
-              </div>
-            ))}
-          </div>
-
           <div className="flex gap-1 min-w-fit">
             {weeks.map((week, weekIndex) => {
               const firstDayOfWeek = week.find(d => d.date)?.date || `week-${weekIndex}`;
@@ -131,9 +128,20 @@ export function ContributionGraph({ data, selectedYear, onYearChange }: Contribu
                         backgroundColor: day.date ? day.color : '#ebedf0',
                         opacity: day.date ? 1 : 0.5
                       }}
-                      onMouseEnter={() => day.date && setHoveredDay(day)}
+                      onMouseEnter={(e) => {
+                        if (day.date) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const containerRect = e.currentTarget.closest('.relative')?.getBoundingClientRect();
+                          if (containerRect) {
+                            setMousePosition({
+                              x: rect.left - containerRect.left + rect.width / 2,
+                              y: rect.top - containerRect.top
+                            });
+                          }
+                          setHoveredDay(day);
+                        }
+                      }}
                       onMouseLeave={() => setHoveredDay(null)}
-                      title={day.date ? `${day.count} contributions on ${day.date}` : ''}
                       disabled={!day.date}
                     />
                   ))}
@@ -160,9 +168,14 @@ export function ContributionGraph({ data, selectedYear, onYearChange }: Contribu
         </div>
 
         {hoveredDay && (
-          <div className="absolute top-0 left-0 bg-gray-900 text-white text-xs px-2 py-1 rounded pointer-events-none z-10 transform -translate-y-8">
-            <div>{hoveredDay.count} contributions</div>
-            <div>{new Date(hoveredDay.date).toLocaleDateString()}</div>
+          <div
+            className="absolute bg-gray-900 text-white text-xs px-2 py-1 rounded pointer-events-none z-10 transform -translate-x-1/2 -translate-y-full"
+            style={{
+              left: mousePosition.x,
+              top: mousePosition.y - 4
+            }}
+          >
+            <div>{new Date(hoveredDay.date).toDateString()}</div>
           </div>
         )}
       </div>
