@@ -3,6 +3,8 @@
 import { useMemo, useState, useCallback } from 'react';
 import type { CSSProperties } from 'react';
 import type { ContributionDay, AllYearsData } from '@/types/contributions';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { GraphAppearance } from '@/types/graph-appearance';
 
 type DotShape = 'rounded';
 
@@ -10,6 +12,7 @@ interface ContributionGraphProps {
   data: AllYearsData;
   selectedYear?: string;
   onYearChange?: (year: string) => void;
+  appearance?: GraphAppearance;
 }
 
 const MONTHS = [
@@ -21,6 +24,7 @@ export function ContributionGraph({
   data,
   selectedYear,
   onYearChange,
+  appearance,
 }: ContributionGraphProps) {
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -76,15 +80,23 @@ export function ContributionGraph({
 
   const weeks = useMemo(() => getWeeksInYear(currentYearContributions), [currentYearContributions, getWeeksInYear]);
 
-  const size = 12;
-  const gap = 2;
-  const dotShapeStyle = { borderRadius: 4 } as const;
+  const size = appearance?.size ?? 12;
+  const gap = appearance?.gap ?? 2;
+  const shape = appearance?.shape ?? 'rounded';
+  const minOpacity = appearance?.minOpacity ?? 0.15;
+  const maxOpacity = appearance?.maxOpacity ?? 1;
+  const baseHex = appearance?.baseColor ?? '#10b981';
 
-  const baseHex = '#10b981';
+  const dotShapeStyle: CSSProperties = useMemo(() => {
+    if (shape === 'square') return { borderRadius: 0 };
+    if (shape === 'circle') return { borderRadius: 9999 };
+    return { borderRadius: 4 };
+  }, [shape]);
   const getColor = (day: ContributionDay | null) => {
     if (!day || !day.date) return 'rgba(16, 185, 129, 0.08)';
     const level = Math.max(0, Math.min(4, day.intensity));
-    const alpha = [0.15, 0.35, 0.55, 0.75, 1][level];
+    const stops = [0, 1, 2, 3, 4].map((i) => minOpacity + (i * (maxOpacity - minOpacity)) / 4);
+    const alpha = stops[level];
     // Convert base hex to rgb
     const r = parseInt(baseHex.slice(1, 3), 16);
     const g = parseInt(baseHex.slice(3, 5), 16);
@@ -96,18 +108,21 @@ export function ContributionGraph({
 
   return (
     <div className="w-full overflow-x-auto">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900/90">Contribution Activity</h3>
+      <div className="flex items-center justify-between mb-4 p-1">
+        <h3 className="text-lg font-semibold">Contribution Activity</h3>
         {years.length > 1 && (
-          <select
-            value={selectedYear || years[0]}
-            onChange={(e) => onYearChange?.(e.target.value)}
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white/70 backdrop-blur focus:outline-none focus:ring-2 focus:ring-teal-400/50"
-          >
-            {years.map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
+          <Select value={selectedYear || years[0]} onValueChange={(v) => onYearChange?.(v)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
       </div>
 
@@ -122,7 +137,7 @@ export function ContributionGraph({
           </div>
         </div>
 
-        <div className="flex">
+        <div className="flex justify-center">
           <div className="flex min-w-fit" style={{ gap }}>
             {weeks.map((week, weekIndex) => {
               const firstDayOfWeek = week.find(d => d.date)?.date || `week-${weekIndex}`;
@@ -146,7 +161,7 @@ export function ContributionGraph({
                       }}
                       onMouseLeave={() => setHoveredDay(null)}
                       disabled={!day.date}
-                      aria-label={day.date ? `${day.date} – level ${day.intensity}` : 'empty'}
+                      aria-label={day.date ? `${day.date} –` : 'empty'}
                     />
                   ))}
                 </div>
@@ -164,7 +179,7 @@ export function ContributionGraph({
             className="absolute bg-gray-900/95 text-white text-xs px-2 py-1 rounded z-10 transform -translate-x-1/2 -translate-y-full whitespace-nowrap shadow-lg"
             style={{ left: mousePosition.x, top: mousePosition.y - 6 }}
           >
-            {new Date(hoveredDay.date).toDateString()} · level {hoveredDay.intensity}
+            {new Date(hoveredDay.date).toDateString()}
           </div>
         )}
       </div>

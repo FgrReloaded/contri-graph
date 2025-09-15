@@ -11,9 +11,6 @@ export default function GraphSelector() {
                     <h1>Charts</h1>
                 </div>
             </div>
-            <div className="w-full">
-                <h5 className="text-sm text-left p-3 pt-4 border-b">Select a graph to view</h5>
-            </div>
             <div className="w-full flex-1 min-h-0">
                 <ScrollArea className="h-full w-full pr-2">
                     <div className="p-3 flex flex-wrap justify-center gap-2 pb-36">
