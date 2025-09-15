@@ -1,6 +1,30 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { ThemeToggler } from "./theme-toggler";
 
 export default function Header() {
+    const [starsCount, setStarsCount] = useState<number>(0);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const fetchStars = async () => {
+            try {
+                const repoResponse = await fetch("https://api.github.com/repos/FgrReloaded/contri-graph");
+                if (repoResponse.ok) {
+                    const repoData = await repoResponse.json();
+                    setStarsCount(repoData.stargazers_count || 0);
+                }
+            } catch (error) {
+                console.error("Failed to fetch GitHub stars:", error);
+                setStarsCount(0);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStars();
+    }, []);
     return (
         <div className="border-b h-20 flex justify-between items-center">
             <div className="px-8">
@@ -24,7 +48,7 @@ export default function Header() {
                     </svg>
 
                     <span className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-200">
-                        0
+                        {loading ? "—" : starsCount}
                     </span>
                 </a>
             </div>
