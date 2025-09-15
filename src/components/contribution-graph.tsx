@@ -6,7 +6,7 @@ import type { ContributionDay, AllYearsData } from '@/types/contributions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import UserBadge from '@/components/user-badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import type { GraphAppearance } from '@/types/graph-appearance';
+import { useGraphAppearanceStore } from '@/store/graph-appearance';
 import Conditional from './conditional';
 import { Button } from './ui/button';
 
@@ -16,7 +16,6 @@ interface ContributionGraphProps {
   data: AllYearsData;
   selectedYear?: string;
   onYearChange?: (year: string) => void;
-  appearance?: GraphAppearance;
   user?: { login: string; id: string; avatar_url: string; name: string | null } | null;
   exportRef?: Ref<HTMLDivElement>;
 }
@@ -30,7 +29,6 @@ export function ContributionGraph({
   data,
   selectedYear,
   onYearChange,
-  appearance,
   user,
   exportRef,
 }: ContributionGraphProps) {
@@ -88,12 +86,13 @@ export function ContributionGraph({
 
   const weeks = useMemo(() => getWeeksInYear(currentYearContributions), [currentYearContributions, getWeeksInYear]);
 
-  const size = appearance?.size ?? 12;
-  const gap = appearance?.gap ?? 2;
-  const shape = appearance?.shape ?? 'rounded';
-  const minOpacity = appearance?.minOpacity ?? 0.15;
-  const maxOpacity = appearance?.maxOpacity ?? 1;
-  const baseHex = appearance?.baseColor ?? '#10b981';
+  const appearance = useGraphAppearanceStore((s) => s.appearance);
+  const size = appearance.size;
+  const gap = appearance.gap;
+  const shape = appearance.shape;
+  const minOpacity = appearance.minOpacity;
+  const maxOpacity = appearance.maxOpacity;
+  const baseHex = appearance.baseColor;
 
   const dotShapeStyle: CSSProperties = useMemo(() => {
     if (shape === 'square') return { borderRadius: 0 };

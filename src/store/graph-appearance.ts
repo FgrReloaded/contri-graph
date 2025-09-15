@@ -1,0 +1,29 @@
+"use client";
+
+import { create } from "zustand";
+import type { GraphAppearance } from "@/types/graph-appearance";
+import { defaultGraphAppearance } from "@/types/graph-appearance";
+
+interface GraphAppearanceState {
+  appearance: GraphAppearance;
+  setAppearance: (next: GraphAppearance) => void;
+  setBaseColor: (hex: string) => void;
+  setMinOpacity: (value: number) => void;
+  setMaxOpacity: (value: number) => void;
+  setSize: (value: number) => void;
+  setGap: (value: number) => void;
+  setShape: (value: GraphAppearance["shape"]) => void;
+}
+
+export const useGraphAppearanceStore = create<GraphAppearanceState>((set) => ({
+  appearance: defaultGraphAppearance,
+  setAppearance: (next) => set({ appearance: next }),
+  setBaseColor: (hex) => set((state) => ({ appearance: { ...state.appearance, baseColor: hex } })),
+  setMinOpacity: (value) => set((state) => ({ appearance: { ...state.appearance, minOpacity: value } })),
+  setMaxOpacity: (value) => set((state) => ({ appearance: { ...state.appearance, maxOpacity: value } })),
+  setSize: (value) => set((state) => ({ appearance: { ...state.appearance, size: value } })),
+  setGap: (value) => set((state) => ({ appearance: { ...state.appearance, gap: value } })),
+  setShape: (value) => set((state) => ({ appearance: { ...state.appearance, shape: value } })),
+}));
+
+

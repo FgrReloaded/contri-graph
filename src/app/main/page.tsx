@@ -10,8 +10,7 @@ import Conditional from "@/components/conditional";
 import GraphTypeSelector from "@/components/graph-type-selector";
 import { Button } from "@/components/ui/button";
 import CustomizationPanel from "@/components/customization-panel";
-import type { GraphAppearance } from "@/types/graph-appearance";
-import { defaultGraphAppearance } from "@/types/graph-appearance";
+import { useGraphAppearanceStore } from "@/store/graph-appearance";
 import GraphDialog from "@/components/graph-dialog";
 import { toPng } from "html-to-image";
 
@@ -27,7 +26,7 @@ export default function Main() {
     const [data, setData] = useState<AllYearsData | null>(null);
     const [selectedYear, setSelectedYear] = useState<string>("");
     const [error, setError] = useState<string>("");
-    const [appearance, setAppearance] = useState<GraphAppearance>(defaultGraphAppearance);
+    const setBaseColor = useGraphAppearanceStore((s) => s.setBaseColor);
     const [user, setUser] = useState<GithubUser | null>(null);
     const exportRef = useRef<HTMLDivElement | null>(null);
     
@@ -73,7 +72,7 @@ export default function Main() {
             <Conditional condition={!!data && !!user}>
                 <div className="flex justify-center items-start w-full h-full">
                     <div className="w-1/5">
-                        <GraphSelector />
+                        <GraphSelector onSelect={(hex) => setBaseColor(hex)} />
                     </div>
                     <div className="w-3/5 border-l border-r h-full flex flex-col">
                         <GraphTypeSelector />
@@ -95,7 +94,7 @@ export default function Main() {
                                         data={data}
                                         selectedYear={selectedYear}
                                         onYearChange={setSelectedYear}
-                                        appearance={appearance}
+                                        
                                     />
                                 )}
                                 <Button
@@ -130,14 +129,13 @@ export default function Main() {
                                 data={data!}
                                 selectedYear={selectedYear}
                                 onYearChange={setSelectedYear}
-                                appearance={appearance}
                                 user={user}
                                 exportRef={exportRef}
                             />
                         </div>
                     </div>
                     <div className="w-1/5">
-                        <CustomizationPanel value={appearance} onChange={setAppearance} />
+                        <CustomizationPanel />
                     </div>
                 </div>
             </Conditional>

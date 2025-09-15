@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { ContributionGraph } from "@/components/contribution-graph"
 import type { AllYearsData } from "@/types/contributions"
-import type { GraphAppearance } from "@/types/graph-appearance"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 interface GithubUser {
@@ -19,7 +18,6 @@ interface GraphDialogProps {
     data: AllYearsData
     selectedYear: string
     onYearChange: (year: string) => void
-    appearance: GraphAppearance
     user: GithubUser | null
 }
 
@@ -29,7 +27,6 @@ export default function GraphDialog({
     data,
     selectedYear,
     onYearChange,
-    appearance,
     user,
 }: GraphDialogProps) {
     return (
@@ -43,7 +40,6 @@ export default function GraphDialog({
                         data={data}
                         selectedYear={selectedYear}
                         onYearChange={onYearChange}
-                        appearance={appearance}
                         user={user}
                     />
                 </div>

@@ -2,15 +2,17 @@
 
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { GraphAppearance } from "@/types/graph-appearance"
 import { Label } from "./ui/label"
+import { useGraphAppearanceStore } from "@/store/graph-appearance"
 
-interface CustomizationPanelProps {
-    value: GraphAppearance
-    onChange: (next: GraphAppearance) => void
-}
-
-export default function CustomizationPanel({ value, onChange }: CustomizationPanelProps) {
+export default function CustomizationPanel() {
+    const value = useGraphAppearanceStore((s) => s.appearance)
+    const setBaseColor = useGraphAppearanceStore((s) => s.setBaseColor)
+    const setMinOpacity = useGraphAppearanceStore((s) => s.setMinOpacity)
+    const setMaxOpacity = useGraphAppearanceStore((s) => s.setMaxOpacity)
+    const setSize = useGraphAppearanceStore((s) => s.setSize)
+    const setGap = useGraphAppearanceStore((s) => s.setGap)
+    const setShape = useGraphAppearanceStore((s) => s.setShape)
     return (
         <div className="h-screen flex flex-col">
             <div className="w-full flex justify-center items-center text-center border-b p-4">
@@ -24,13 +26,13 @@ export default function CustomizationPanel({ value, onChange }: CustomizationPan
                             type="color"
                             className="h-8 w-8 rounded border bg-transparent p-0"
                             value={value.baseColor}
-                            onChange={(e) => onChange({ ...value, baseColor: e.target.value })}
+                            onChange={(e) => setBaseColor(e.target.value)}
                             aria-label="Pick base color"
                         />
                         <Input
                             type="text"
                             value={value.baseColor}
-                            onChange={(e) => onChange({ ...value, baseColor: e.target.value })}
+                            onChange={(e) => setBaseColor(e.target.value)}
                             className="h-8"
                         />
                     </div>
@@ -47,7 +49,7 @@ export default function CustomizationPanel({ value, onChange }: CustomizationPan
                                 min={0}
                                 max={1}
                                 value={value.minOpacity}
-                                onChange={(e) => onChange({ ...value, minOpacity: clamp(parseFloat(e.target.value), 0, 1) })}
+                                onChange={(e) => setMinOpacity(clamp(parseFloat(e.target.value), 0, 1))}
                                 className="h-8"
                             />
                         </div>
@@ -59,7 +61,7 @@ export default function CustomizationPanel({ value, onChange }: CustomizationPan
                                 min={0}
                                 max={1}
                                 value={value.maxOpacity}
-                                onChange={(e) => onChange({ ...value, maxOpacity: clamp(parseFloat(e.target.value), 0, 1) })}
+                                onChange={(e) => setMaxOpacity(clamp(parseFloat(e.target.value), 0, 1))}
                                 className="h-8"
                             />
                         </div>
@@ -73,7 +75,7 @@ export default function CustomizationPanel({ value, onChange }: CustomizationPan
                         min={4}
                         max={28}
                         value={value.size}
-                        onChange={(e) => onChange({ ...value, size: clamp(parseInt(e.target.value || '0'), 4, 28) })}
+                        onChange={(e) => setSize(clamp(parseInt(e.target.value || '0'), 4, 28))}
                         className="h-8"
                     />  
                 </div>
@@ -85,14 +87,14 @@ export default function CustomizationPanel({ value, onChange }: CustomizationPan
                         min={0}
                         max={12}
                         value={value.gap}
-                        onChange={(e) => onChange({ ...value, gap: clamp(parseInt(e.target.value || '0'), 0, 12) })}
+                        onChange={(e) => setGap(clamp(parseInt(e.target.value || '0'), 0, 12))}
                         className="h-8"
                     />
                 </div>
 
                 <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Shape</Label>
-                    <Select value={value.shape} onValueChange={(v) => onChange({ ...value, shape: v as any })}>
+                    <Select value={value.shape} onValueChange={(v) => setShape(v as any)}>
                         <SelectTrigger size="sm" className="w-full">
                             <SelectValue />
                         </SelectTrigger>
