@@ -4,20 +4,12 @@ import { useMemo, useState, useCallback } from 'react';
 import type { CSSProperties } from 'react';
 import type { ContributionDay, AllYearsData } from '@/types/contributions';
 
-export type DotShape = 'square' | 'rounded' | 'circle' | 'diamond' | 'hex';
+type DotShape = 'rounded';
 
 interface ContributionGraphProps {
   data: AllYearsData;
   selectedYear?: string;
   onYearChange?: (year: string) => void;
-  colorScale?: string[]; // length 5 (0..4)
-  shape?: DotShape;
-  size?: number; // px
-  gap?: number; // px
-  showMonths?: boolean;
-  showWeekdays?: boolean;
-  showLegend?: boolean;
-  showYearSelector?: boolean;
 }
 
 const MONTHS = [
@@ -25,22 +17,10 @@ const MONTHS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-const DEFAULT_SCALE = ['#ECEEF4', '#BEE3D8', '#7DD3C7', '#34B3A0', '#0E8A77'];
-
 export function ContributionGraph({
   data,
   selectedYear,
   onYearChange,
-  colorScale = DEFAULT_SCALE,
-  shape = 'rounded',
-  size = 12,
-  gap = 2,
-  showMonths = true,
-  showWeekdays = false,
-  showLegend = true,
-  showYearSelector = true,
 }: ContributionGraphProps) {
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -96,29 +76,29 @@ export function ContributionGraph({
 
   const weeks = useMemo(() => getWeeksInYear(currentYearContributions), [currentYearContributions, getWeeksInYear]);
 
-  const dotShapeStyle = useMemo(() => {
-    if (shape === 'circle') return { borderRadius: 9999 } as const;
-    if (shape === 'square') return { borderRadius: 2 } as const;
-    if (shape === 'rounded') return { borderRadius: 4 } as const;
-    if (shape === 'diamond') return { clipPath: 'polygon(50% 0, 100% 50%, 50% 100%, 0 50%)' } as const;
-    if (shape === 'hex') return { clipPath: 'polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0 50%)' } as const;
-    return {} as const;
-  }, [shape]);
+  const size = 12;
+  const gap = 2;
+  const dotShapeStyle = { borderRadius: 4 } as const;
 
+  const baseHex = '#10b981';
   const getColor = (day: ContributionDay | null) => {
-    if (!day || !day.date) return colorScale[0] ?? '#ECEEF4';
-    const idx = Math.max(0, Math.min(colorScale.length - 1, day.intensity));
-    return colorScale[idx] ?? colorScale[0] ?? '#ECEEF4';
+    if (!day || !day.date) return 'rgba(16, 185, 129, 0.08)';
+    const level = Math.max(0, Math.min(4, day.intensity));
+    const alpha = [0.15, 0.35, 0.55, 0.75, 1][level];
+    // Convert base hex to rgb
+    const r = parseInt(baseHex.slice(1, 3), 16);
+    const g = parseInt(baseHex.slice(3, 5), 16);
+    const b = parseInt(baseHex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  const legendScale = colorScale.slice(0, 5);
   const dotStyleBase: CSSProperties = { width: size, height: size, ...dotShapeStyle };
 
   return (
     <div className="w-full overflow-x-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900/90">Contribution Activity</h3>
-        {showYearSelector && years.length > 1 && (
+        {years.length > 1 && (
           <select
             value={selectedYear || years[0]}
             onChange={(e) => onYearChange?.(e.target.value)}
@@ -132,30 +112,17 @@ export function ContributionGraph({
       </div>
 
       <div className="relative min-w-fit">
-        {showMonths && (
-          <div className="flex mb-2">
-            <div className="" style={{ width: showWeekdays ? 24 : 0 }} />
-            <div className="flex-1 grid grid-cols-12 gap-0">
-              {MONTHS.map((month) => (
-                <div key={month} className="text-[11px] text-gray-600/80 text-center select-none">
-                  {month}
-                </div>
-              ))}
-            </div>
+        <div className="flex mb-2">
+          <div className="flex-1 grid grid-cols-12 gap-0">
+            {MONTHS.map((month) => (
+              <div key={month} className="text-[11px] text-gray-600/80 text-center select-none">
+                {month}
+              </div>
+            ))}
           </div>
-        )}
+        </div>
 
         <div className="flex">
-          {showWeekdays && (
-            <div className="flex flex-col justify-between items-end pr-2 select-none" style={{ paddingTop: 0, paddingBottom: 0 }}>
-              {[0, 2, 4].map((i) => (
-                <div key={WEEKDAYS[i]} className="text-[11px] leading-none text-gray-500/80" style={{ height: size + gap }}>
-                  {WEEKDAYS[i]}
-                </div>
-              ))}
-            </div>
-          )}
-
           <div className="flex min-w-fit" style={{ gap }}>
             {weeks.map((week, weekIndex) => {
               const firstDayOfWeek = week.find(d => d.date)?.date || `week-${weekIndex}`;
@@ -188,17 +155,9 @@ export function ContributionGraph({
           </div>
         </div>
 
-        {showLegend && (
-          <div className="flex items-center justify-between mt-3 text-xs text-gray-600/90 select-none">
-            <span>Less</span>
-            <div className="flex" style={{ gap }}>
-              {legendScale.map((c) => (
-                <div key={c} className="shadow-[inset_0_0_0_1px_rgba(0,0,0,0.04)]" style={{ ...dotShapeStyle, width: size, height: size, backgroundColor: c }} />
-              ))}
-            </div>
-            <span>More</span>
-          </div>
-        )}
+        <div className="mt-3 text-xs text-gray-600/90 select-none">
+          <span className="text-gray-500">Intensity increases with darker shade</span>
+        </div>
 
         {hoveredDay && (
           <div

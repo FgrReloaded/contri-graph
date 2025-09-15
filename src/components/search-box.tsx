@@ -17,6 +17,11 @@ export default function SearchBox({ onUsernameChange }: SearchBoxProps) {
                     <Input
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                onUsernameChange?.(username.trim());
+                            }
+                        }}
                         type="text"
                         placeholder="username"
                         className="outline-none border-none ring-0 placeholder:text-base focus-visible:ring-0 shadow-none dark:bg-transparent w-fit"
