@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/header";
+import { ThemeProvider } from "@/components/providers/theme-provider"
+
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -20,11 +23,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        style={openSans.style}
+        <body
+          style={openSans.style}
+        >
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem={false}
+        disableTransitionOnChange
       >
-        {children}
-      </body>
+          <Header />
+          {children}
+      </ThemeProvider>
+        </body>
     </html>
   );
 }
