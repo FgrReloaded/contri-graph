@@ -99,6 +99,7 @@ export function ContributionGraph({
     if (shape === 'circle') return { borderRadius: 9999 };
     return { borderRadius: 4 };
   }, [shape]);
+  
   const getColor = (day: ContributionDay | null) => {
     if (!day || !day.date) return 'rgba(16, 185, 129, 0.08)';
     const level = Math.max(0, Math.min(4, day.intensity));
