@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import localFont from 'next/font/local'
 import "./globals.css";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/providers/theme-provider"
 
-
-const openSans = Open_Sans({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  variable: "--font-geist-sans",
-});
+const grotesk = localFont({
+  src: './grotesk.ttf',
+})
 
 export const metadata: Metadata = {
   title: "Contri Graph",
@@ -24,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
         <body
-          style={openSans.style}
+          style={grotesk.style}
         >
       <ThemeProvider
         attribute="class"
