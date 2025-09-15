@@ -14,12 +14,20 @@ import type { GraphAppearance } from "@/types/graph-appearance";
 import { defaultGraphAppearance } from "@/types/graph-appearance";
 import GraphDialog from "@/components/graph-dialog";
 
+interface GithubUser {
+    login: string;
+    id: string;
+    avatar_url: string;
+    name: string | null;
+}
+
 export default function Main() {
     const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState<AllYearsData | null>(null);
     const [selectedYear, setSelectedYear] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [appearance, setAppearance] = useState<GraphAppearance>(defaultGraphAppearance);
+    const [user, setUser] = useState<GithubUser | null>(null);
     
 
     async function fetchData(target: string) {
@@ -27,6 +35,7 @@ export default function Main() {
         setIsLoading(true);
         setError("");
         setData(null);
+        setUser(null);
         try {
             const res = await fetch(`/api/github/${encodeURIComponent(target)}?format=flat`);
             if (!res.ok) {
@@ -37,6 +46,12 @@ export default function Main() {
             setData(json);
             const years = Array.isArray(json.years) ? json.years : Object.values(json.years);
             if (years.length > 0) setSelectedYear(years[0].year);
+
+            const userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(target)}`);
+            if (userRes.ok) {
+                const u: GithubUser = await userRes.json();
+                setUser({ login: u.login, id: target, avatar_url: u.avatar_url, name: u.name });
+            }
         } catch (e) {
             setError(e instanceof Error ? e.message : "Something went wrong");
         } finally {
@@ -53,7 +68,7 @@ export default function Main() {
             <Conditional condition={isLoading || !data}>
                 <EmptyArea isLoading={isLoading} />
             </Conditional>
-            <Conditional condition={!!data}>
+            <Conditional condition={!!data && !!user}>
                 <div className="flex justify-center items-start w-full h-full">
                     <div className="w-1/5">
                         <GraphSelector />
@@ -74,6 +89,7 @@ export default function Main() {
                                                 <span className="text-sm text-gray-400">Preview</span>
                                             </div>
                                         )}
+                                        user={user}
                                         data={data}
                                         selectedYear={selectedYear}
                                         onYearChange={setSelectedYear}
@@ -93,7 +109,7 @@ export default function Main() {
                             </div>
                         </div>
                         <div className="p-6">
-                            <ContributionGraph data={data!} selectedYear={selectedYear} onYearChange={setSelectedYear} appearance={appearance} />
+                            <ContributionGraph data={data!} selectedYear={selectedYear} onYearChange={setSelectedYear} appearance={appearance} user={user} />
                         </div>
                     </div>
                     <div className="w-1/5">
@@ -101,7 +117,6 @@ export default function Main() {
                     </div>
                 </div>
             </Conditional>
-            {/* Drawer replaces previous fullscreen overlay */}
         </div>
     )
 }

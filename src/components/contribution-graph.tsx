@@ -4,8 +4,11 @@ import { useMemo, useState, useCallback } from 'react';
 import type { CSSProperties } from 'react';
 import type { ContributionDay, AllYearsData } from '@/types/contributions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import UserBadge from '@/components/user-badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import type { GraphAppearance } from '@/types/graph-appearance';
+import Conditional from './conditional';
+import { Button } from './ui/button';
 
 type DotShape = 'rounded';
 
@@ -14,6 +17,7 @@ interface ContributionGraphProps {
   selectedYear?: string;
   onYearChange?: (year: string) => void;
   appearance?: GraphAppearance;
+  user?: { login: string; id: string; avatar_url: string; name: string | null } | null;
 }
 
 const MONTHS = [
@@ -26,6 +30,7 @@ export function ContributionGraph({
   selectedYear,
   onYearChange,
   appearance,
+  user,
 }: ContributionGraphProps) {
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -127,6 +132,15 @@ export function ContributionGraph({
         )}
       </div>
 
+      {/* <Conditional condition={!!user}> */}
+      {
+        user &&
+        <div className="px-1 pt-1">
+          <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} login={user.login} />
+        </div>
+        }
+      {/* </Conditional> */}
+      
       <div className="relative min-w-fit pb-6">
         <div className="flex mb-2">
           <div className="flex-1 grid grid-cols-12 gap-0">
@@ -145,7 +159,7 @@ export function ContributionGraph({
               return (
                 <div key={firstDayOfWeek} className="flex flex-col" style={{ gap }}>
                   {week.map((day, dayIndex) => (
-                    <button
+                    <Button
                       key={day.date || `empty-${weekIndex}-${dayIndex}`}
                       type="button"
                       className="border-0 p-0 focus:outline-none focus:ring-2 focus:ring-teal-400/60 hover:brightness-110"

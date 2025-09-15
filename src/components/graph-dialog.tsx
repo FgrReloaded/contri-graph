@@ -6,6 +6,13 @@ import type { AllYearsData } from "@/types/contributions"
 import type { GraphAppearance } from "@/types/graph-appearance"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
+interface GithubUser {
+    login: string
+    id: string
+    avatar_url: string
+    name: string | null
+}
+
 interface GraphDialogProps {
     triggerClassName?: string
     triggerContent?: React.ReactNode
@@ -13,6 +20,7 @@ interface GraphDialogProps {
     selectedYear: string
     onYearChange: (year: string) => void
     appearance: GraphAppearance
+    user: GithubUser | null
 }
 
 export default function GraphDialog({
@@ -22,6 +30,7 @@ export default function GraphDialog({
     selectedYear,
     onYearChange,
     appearance,
+    user,
 }: GraphDialogProps) {
     return (
         <Dialog>
@@ -35,6 +44,7 @@ export default function GraphDialog({
                         selectedYear={selectedYear}
                         onYearChange={onYearChange}
                         appearance={appearance}
+                        user={user}
                     />
                 </div>
                 <DialogFooter>
