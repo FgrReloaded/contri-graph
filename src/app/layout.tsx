@@ -20,19 +20,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-        <body
-          style={grotesk.style}
-        >
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="light"
-        enableSystem={false}
-        disableTransitionOnChange
+      <body
+        className="h-screen overflow-hidden"
+        style={grotesk.style}
       >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
           <Header />
           {children}
-      </ThemeProvider>
-        </body>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
