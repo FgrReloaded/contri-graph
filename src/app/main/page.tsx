@@ -2,7 +2,7 @@
 
 import SearchBox from "@/components/search-box";
 import EmptyArea from "@/components/empty-area";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import GraphSelector from "@/components/graph-selector";
 import { ContributionGraph } from "@/components/contribution-graph";
 import type { AllYearsData } from "@/types/contributions";
@@ -13,6 +13,7 @@ import CustomizationPanel from "@/components/customization-panel";
 import type { GraphAppearance } from "@/types/graph-appearance";
 import { defaultGraphAppearance } from "@/types/graph-appearance";
 import GraphDialog from "@/components/graph-dialog";
+import { toPng } from "html-to-image";
 
 interface GithubUser {
     login: string;
@@ -28,6 +29,7 @@ export default function Main() {
     const [error, setError] = useState<string>("");
     const [appearance, setAppearance] = useState<GraphAppearance>(defaultGraphAppearance);
     const [user, setUser] = useState<GithubUser | null>(null);
+    const exportRef = useRef<HTMLDivElement | null>(null);
     
 
     async function fetchData(target: string) {
@@ -100,6 +102,21 @@ export default function Main() {
                                     className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
                                     variant={"ghost"}
                                     size={"sm"}
+                                    onClick={async () => {
+                                        if (!exportRef.current) return;
+                                        try {
+                                            const dataUrl = await toPng(exportRef.current, {
+                                                cacheBust: true,
+                                                pixelRatio: 2,
+                                            });
+                                            const link = document.createElement('a');
+                                            link.download = `${user?.login || 'graph'}-${selectedYear || 'year'}.png`;
+                                            link.href = dataUrl;
+                                            link.click();
+                                        } catch (err) {
+                                            console.error('Failed to export image', err);
+                                        }
+                                    }}
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
@@ -109,7 +126,14 @@ export default function Main() {
                             </div>
                         </div>
                         <div className="p-6">
-                            <ContributionGraph data={data!} selectedYear={selectedYear} onYearChange={setSelectedYear} appearance={appearance} user={user} />
+                            <ContributionGraph
+                                data={data!}
+                                selectedYear={selectedYear}
+                                onYearChange={setSelectedYear}
+                                appearance={appearance}
+                                user={user}
+                                exportRef={exportRef}
+                            />
                         </div>
                     </div>
                     <div className="w-1/5">

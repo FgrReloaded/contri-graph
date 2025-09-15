@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useCallback } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, Ref } from 'react';
 import type { ContributionDay, AllYearsData } from '@/types/contributions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import UserBadge from '@/components/user-badge';
@@ -18,6 +18,7 @@ interface ContributionGraphProps {
   onYearChange?: (year: string) => void;
   appearance?: GraphAppearance;
   user?: { login: string; id: string; avatar_url: string; name: string | null } | null;
+  exportRef?: Ref<HTMLDivElement>;
 }
 
 const MONTHS = [
@@ -31,6 +32,7 @@ export function ContributionGraph({
   onYearChange,
   appearance,
   user,
+  exportRef,
 }: ContributionGraphProps) {
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -132,16 +134,13 @@ export function ContributionGraph({
         )}
       </div>
 
-      {/* <Conditional condition={!!user}> */}
-      {
-        user &&
-        <div className="px-1 pt-1">
-          <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} login={user.login} />
-        </div>
-        }
-      {/* </Conditional> */}
-      
-      <div className="relative min-w-fit pb-6">
+
+      <div ref={exportRef as any} className="relative min-w-fit pb-6" data-export="contribution-graph">
+        <Conditional condition={!!user}>
+          <div className="px-1 pt-1">
+            <UserBadge avatarUrl={user!.avatar_url} name={user!.name} id={user!.id} login={user!.login} />
+          </div>
+        </Conditional>
         <div className="flex mb-2">
           <div className="flex-1 grid grid-cols-12 gap-0">
             {MONTHS.map((month) => (
