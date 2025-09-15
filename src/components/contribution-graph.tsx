@@ -4,6 +4,7 @@ import { useMemo, useState, useCallback } from 'react';
 import type { CSSProperties } from 'react';
 import type { ContributionDay, AllYearsData } from '@/types/contributions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import type { GraphAppearance } from '@/types/graph-appearance';
 
 type DotShape = 'rounded';
@@ -107,7 +108,7 @@ export function ContributionGraph({
   const dotStyleBase: CSSProperties = { width: size, height: size, ...dotShapeStyle };
 
   return (
-    <div className="w-full overflow-x-auto">
+    <ScrollArea className="w-full">
       <div className="flex items-center justify-between mb-4 p-1">
         <h3 className="text-lg font-semibold">Contribution Activity</h3>
         {years.length > 1 && (
@@ -126,7 +127,7 @@ export function ContributionGraph({
         )}
       </div>
 
-      <div className="relative min-w-fit">
+      <div className="relative min-w-fit pb-6">
         <div className="flex mb-2">
           <div className="flex-1 grid grid-cols-12 gap-0">
             {MONTHS.map((month) => (
@@ -170,10 +171,6 @@ export function ContributionGraph({
           </div>
         </div>
 
-        <div className="mt-3 text-xs text-gray-600/90 select-none">
-          <span className="text-gray-500">Intensity increases with darker shade</span>
-        </div>
-
         {hoveredDay && (
           <div
             className="absolute bg-gray-900/95 text-white text-xs px-2 py-1 rounded z-10 transform -translate-x-1/2 -translate-y-full whitespace-nowrap shadow-lg"
@@ -183,6 +180,7 @@ export function ContributionGraph({
           </div>
         )}
       </div>
-    </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 }

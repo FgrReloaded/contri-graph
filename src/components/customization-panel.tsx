@@ -3,6 +3,7 @@
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { GraphAppearance } from "@/types/graph-appearance"
+import { Label } from "./ui/label"
 
 interface CustomizationPanelProps {
     value: GraphAppearance
@@ -12,14 +13,14 @@ interface CustomizationPanelProps {
 export default function CustomizationPanel({ value, onChange }: CustomizationPanelProps) {
     return (
         <div className="h-screen flex flex-col">
-            <div className="w-full flex justify-center items-center text-center border-b">
-                <h5 className="text-sm text-left p-2">Customize your graph</h5>
+            <div className="w-full flex justify-center items-center text-center border-b p-4">
+                <h5 className="text-left">Customize your graph</h5>
             </div>
             <div className="p-3 space-y-4">
                 <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Base color</label>
+                    <Label className="text-xs text-muted-foreground">Base color</Label>
                     <div className="flex items-center gap-2">
-                        <input
+                        <Input
                             type="color"
                             className="h-8 w-8 rounded border bg-transparent p-0"
                             value={value.baseColor}
@@ -36,7 +37,7 @@ export default function CustomizationPanel({ value, onChange }: CustomizationPan
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Opacity range</label>
+                    <Label className="text-xs text-muted-foreground">Opacity range</Label>
                     <div className="grid grid-cols-2 gap-2">
                         <div className="flex items-center gap-2">
                             <span className="text-[11px] text-muted-foreground">Min</span>
@@ -66,7 +67,7 @@ export default function CustomizationPanel({ value, onChange }: CustomizationPan
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Dot size</label>
+                    <Label className="text-xs text-muted-foreground">Dot size</Label>
                     <Input
                         type="number"
                         min={4}
@@ -74,11 +75,11 @@ export default function CustomizationPanel({ value, onChange }: CustomizationPan
                         value={value.size}
                         onChange={(e) => onChange({ ...value, size: clamp(parseInt(e.target.value || '0'), 4, 28) })}
                         className="h-8"
-                    />
+                    />  
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Gap</label>
+                    <Label className="text-xs text-muted-foreground">Gap</Label>
                     <Input
                         type="number"
                         min={0}
@@ -90,7 +91,7 @@ export default function CustomizationPanel({ value, onChange }: CustomizationPan
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Shape</label>
+                    <Label className="text-xs text-muted-foreground">Shape</Label>
                     <Select value={value.shape} onValueChange={(v) => onChange({ ...value, shape: v as any })}>
                         <SelectTrigger size="sm" className="w-full">
                             <SelectValue />

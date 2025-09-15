@@ -10,9 +10,9 @@ import Conditional from "@/components/conditional";
 import GraphTypeSelector from "@/components/graph-type-selector";
 import { Button } from "@/components/ui/button";
 import CustomizationPanel from "@/components/customization-panel";
-import { useMemo, useState as useReactState } from "react";
 import type { GraphAppearance } from "@/types/graph-appearance";
 import { defaultGraphAppearance } from "@/types/graph-appearance";
+import GraphDialog from "@/components/graph-dialog";
 
 export default function Main() {
     const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +20,7 @@ export default function Main() {
     const [selectedYear, setSelectedYear] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [appearance, setAppearance] = useState<GraphAppearance>(defaultGraphAppearance);
+    
 
     async function fetchData(target: string) {
         if (!target) return;
@@ -44,7 +45,7 @@ export default function Main() {
     }
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col h-screen">
             <SearchBox onUsernameChange={fetchData} />
             <Conditional condition={!!error}>
                 <div className="text-center text-red-600 py-2">{error}</div>
@@ -61,17 +62,24 @@ export default function Main() {
                         <GraphTypeSelector />
                         <div className="p-2 border-b flex justify-end items-center">
                             <div className="flex items-center gap-4">
-                                <Button
-                                    className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
-                                    variant={"ghost"}
-                                    size={"sm"}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    <span className="text-sm text-gray-400">Preview</span>
-                                </Button>
+                                {data && (
+                                    <GraphDialog
+                                        triggerClassName="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
+                                        triggerContent={(
+                                            <div className="flex items-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                                <span className="text-sm text-gray-400">Preview</span>
+                                            </div>
+                                        )}
+                                        data={data}
+                                        selectedYear={selectedYear}
+                                        onYearChange={setSelectedYear}
+                                        appearance={appearance}
+                                    />
+                                )}
                                 <Button
                                     className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
                                     variant={"ghost"}
@@ -93,6 +101,7 @@ export default function Main() {
                     </div>
                 </div>
             </Conditional>
+            {/* Drawer replaces previous fullscreen overlay */}
         </div>
     )
 }
