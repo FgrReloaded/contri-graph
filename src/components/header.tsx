@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ThemeToggler } from "./theme-toggler";
+import { Logo } from "./ui/logo";
 
 export default function Header() {
     const [starsCount, setStarsCount] = useState<number>(0);
@@ -27,7 +28,8 @@ export default function Header() {
     }, []);
     return (
         <div className="border-b h-20 flex justify-between items-center">
-            <div className="px-8">
+            <div className="px-8 flex items-center gap-3">
+                <Logo size={28} className="text-foreground" />
                 <h1 className="text-xl font-semibold">
                     ContriGraph
                 </h1>
