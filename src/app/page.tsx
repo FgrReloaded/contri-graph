@@ -13,7 +13,9 @@ import CustomizationPanel from "@/components/customization-panel";
 import { useGraphAppearanceStore } from "@/store/graph-appearance";
 import GraphDialog from "@/components/graph-dialog";
 import DownloadDialog from "@/components/download-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toPng } from "html-to-image";
+import { useTheme } from "next-themes";
 
 interface GithubUser {
     login: string;
@@ -23,6 +25,7 @@ interface GithubUser {
 }
 
 export default function Main() {
+    const { resolvedTheme } = useTheme();
     const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState<AllYearsData | null>(null);
     const [selectedYear, setSelectedYear] = useState<string>("");
@@ -31,7 +34,9 @@ export default function Main() {
     const [user, setUser] = useState<GithubUser | null>(null);
     const exportRef = useRef<HTMLDivElement | null>(null);
     const [downloadOpen, setDownloadOpen] = useState(false);
-    
+    const [showPalettes, setShowPalettes] = useState(false);
+    const [showCustomize, setShowCustomize] = useState(false);
+
 
     async function fetchData(target: string) {
         if (!target) return;
@@ -40,21 +45,33 @@ export default function Main() {
         setData(null);
         setUser(null);
         try {
-            const res = await fetch(`/api/github/${encodeURIComponent(target)}?format=flat`);
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || "Failed to fetch contributions");
-            }
-            const json: AllYearsData = await res.json();
+            const contributionPromise = (async () => {
+                const res = await fetch(`/api/github/${encodeURIComponent(target)}?format=flat`);
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || "Failed to fetch contributions");
+                }
+                const json: AllYearsData = await res.json();
+                return json;
+            })();
+
+            const userPromise = (async () => {
+                try {
+                    const userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(target)}`);
+                    if (!userRes.ok) return null;
+                    const u: GithubUser = await userRes.json();
+                    return { login: u.login, id: target, avatar_url: u.avatar_url, name: u.name } as GithubUser;
+                } catch {
+                    return null;
+                }
+            })();
+
+            const [json, u] = await Promise.all([contributionPromise, userPromise]);
+
             setData(json);
             const years = Array.isArray(json.years) ? json.years : Object.values(json.years);
             if (years.length > 0) setSelectedYear(years[0].year);
-
-            const userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(target)}`);
-            if (userRes.ok) {
-                const u: GithubUser = await userRes.json();
-                setUser({ login: u.login, id: target, avatar_url: u.avatar_url, name: u.name });
-            }
+            setUser(u);
         } catch (e) {
             setError(e instanceof Error ? e.message : "Something went wrong");
         } finally {
@@ -69,14 +86,32 @@ export default function Main() {
                 <EmptyArea isLoading={isLoading} error={error || undefined} />
             </Conditional>
             <Conditional condition={!!data}>
-                <div className="flex justify-center items-start w-full h-full">
-                    <div className="w-1/5">
+                <div className="flex justify-center items-start w-full flex-1">
+                    <div className="hidden lg:block lg:w-1/5">
                         <GraphSelector onSelect={(hex) => setBaseColor(hex)} />
                     </div>
-                    <div className="w-3/5 border-l border-r h-full flex flex-col">
+                    <div className="w-full lg:w-3/5 h-full border-l border-r flex flex-col">
                         <GraphTypeSelector />
-                        <div className="p-2 border-b flex justify-end items-center">
-                            <div className="flex items-center gap-4">
+                        <div className="p-2 border-b flex justify-between items-center gap-2">
+                            <div className="flex items-center gap-2 lg:hidden">
+                                <Button
+                                    className="px-2 py-1"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setShowPalettes(true)}
+                                >
+                                    Palettes
+                                </Button>
+                                <Button
+                                    className="px-2 py-1"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setShowCustomize(true)}
+                                >
+                                    Customize
+                                </Button>
+                            </div>
+                            <div className="flex items-center gap-4 ml-auto">
                                 {data && (
                                     <GraphDialog
                                         triggerClassName="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
@@ -93,7 +128,7 @@ export default function Main() {
                                         data={data}
                                         selectedYear={selectedYear}
                                         onYearChange={setSelectedYear}
-                                        
+
                                     />
                                 )}
                                 <Button
@@ -119,7 +154,7 @@ export default function Main() {
                             />
                         </div>
                     </div>
-                    <div className="w-1/5">
+                    <div className="hidden lg:block lg:w-1/5">
                         <CustomizationPanel />
                     </div>
                 </div>
@@ -127,13 +162,23 @@ export default function Main() {
             <DownloadDialog
                 open={downloadOpen}
                 onOpenChange={setDownloadOpen}
+                initialColor={resolvedTheme === "dark" ? "#0b0b0f" : "#ffffff"}
                 onConfirm={async (bg) => {
                     if (!exportRef.current) return;
                     try {
+                        const scrollables = Array.from(exportRef.current.querySelectorAll<HTMLElement>(".overflow-x-auto"));
+                        const previousOverflow: string[] = [];
+                        scrollables.forEach((el) => {
+                            previousOverflow.push(el.style.overflowX);
+                            el.style.overflowX = "visible";
+                        });
                         const dataUrl = await toPng(exportRef.current, {
                             cacheBust: true,
                             pixelRatio: 2,
                             backgroundColor: bg === "transparent" ? undefined : bg,
+                        });
+                        scrollables.forEach((el, idx) => {
+                            el.style.overflowX = previousOverflow[idx] || "";
                         });
                         const link = document.createElement('a');
                         link.download = `${user?.login || 'graph'}-${selectedYear || 'year'}.png`;
@@ -144,6 +189,28 @@ export default function Main() {
                     }
                 }}
             />
+
+            <Dialog open={showPalettes} onOpenChange={setShowPalettes}>
+                <DialogContent className="w-[95vw] sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
+                    <DialogHeader className="px-4 pt-4">
+                        <DialogTitle>Palettes</DialogTitle>
+                    </DialogHeader>
+                    <div className="px-2 pb-4">
+                        <GraphSelector onSelect={(hex) => { setBaseColor(hex); setShowPalettes(false); }} />
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showCustomize} onOpenChange={setShowCustomize}>
+                <DialogContent className="w-[95vw] sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
+                    <DialogHeader className="px-4 pt-4">
+                        <DialogTitle>Customize</DialogTitle>
+                    </DialogHeader>
+                    <div className="px-2 pb-4">
+                        <CustomizationPanel />
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

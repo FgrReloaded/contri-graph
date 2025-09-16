@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,9 @@ interface DownloadDialogProps {
 
 export default function DownloadDialog({ open, onOpenChange, onConfirm, initialColor = "#ffffff" }: DownloadDialogProps) {
     const [color, setColor] = useState<string>(initialColor);
+    useEffect(() => {
+        setColor(initialColor);
+    }, [initialColor]);
     const [transparent, setTransparent] = useState<boolean>(false);
 
     return (

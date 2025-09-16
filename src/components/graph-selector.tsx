@@ -30,7 +30,7 @@ export default function GraphSelector({ value, onSelect }: GraphSelectorProps) {
     }
 
     return (
-        <div className="h-screen flex flex-col">
+        <div className="h-full lg:h-screen flex flex-col">
             <div className="w-full flex justify-center items-center text-center border-b">
                 <div className="w-1/2 h-full bg-primary text-black p-4 cursor-default">
                     <h1>Graphs</h1>

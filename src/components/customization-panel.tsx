@@ -14,7 +14,7 @@ export default function CustomizationPanel() {
     const setGap = useGraphAppearanceStore((s) => s.setGap)
     const setShape = useGraphAppearanceStore((s) => s.setShape)
     return (
-        <div className="h-screen flex flex-col">
+        <div className="h-full lg:h-screen flex flex-col">
             <div className="w-full flex justify-center items-center text-center border-b p-4">
                 <h5 className="text-left">Customize your graph</h5>
             </div>

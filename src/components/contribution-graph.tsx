@@ -116,11 +116,11 @@ export function ContributionGraph({
 
   return (
     <ScrollArea className="w-full">
-      <div className="flex items-center justify-between mb-4 p-1">
+      <div className="flex items-center justify-between mb-4 p-1 gap-2 flex-wrap">
         <h3 className="text-lg font-semibold">Contribution Activity</h3>
         {years.length > 1 && (
           <Select value={selectedYear || years[0]} onValueChange={(v) => onYearChange?.(v)}>
-            <SelectTrigger>
+            <SelectTrigger className="min-w-[110px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -143,8 +143,8 @@ export function ContributionGraph({
             </div>
           )
         }
-        <div className="flex mb-2">
-          <div className="flex-1 grid grid-cols-12 gap-0">
+        <div className="flex mb-2 overflow-x-auto">
+          <div className="flex-1 grid grid-cols-12 gap-0 min-w-[600px]">
             {MONTHS.map((month) => (
               <div key={month} className="text-[11px] text-gray-600/80 text-center select-none">
                 {month}
@@ -153,7 +153,7 @@ export function ContributionGraph({
           </div>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center overflow-x-auto">
           <div className="flex min-w-fit" style={{ gap }}>
             {weeks.map((week, weekIndex) => {
               const firstDayOfWeek = week.find(d => d.date)?.date || `week-${weekIndex}`;
