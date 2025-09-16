@@ -6,7 +6,6 @@ import type { AllYearsData } from "@/types/contributions"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 interface GithubUser {
-    login: string
     id: string
     avatar_url: string
     name: string | null

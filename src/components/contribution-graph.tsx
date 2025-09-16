@@ -7,16 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import UserBadge from '@/components/user-badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useGraphAppearanceStore } from '@/store/graph-appearance';
-import Conditional from './conditional';
 import { Button } from './ui/button';
-
-// removed unused local DotShape type; shape comes from store
 
 interface ContributionGraphProps {
   data: AllYearsData;
   selectedYear?: string;
   onYearChange?: (year: string) => void;
-  user?: { login: string; id: string; avatar_url: string; name: string | null } | null;
+  user?: { id: string; avatar_url: string; name: string | null } | null;
   exportRef?: Ref<HTMLDivElement>;
   showTotal?: boolean;
 }
@@ -157,7 +154,7 @@ export function ContributionGraph({
         <div className="px-1 pt-1 flex items-center justify-between">
           <div>
             {user && (
-              <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} login={user.login} />
+              <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
             )}
           </div>
           {showTotal && yearTotal !== null && (

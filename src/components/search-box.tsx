@@ -24,7 +24,7 @@ export default function SearchBox({ onUsernameChange }: SearchBoxProps) {
                         }}
                         type="text"
                         placeholder="username"
-                        className="outline-none border-none ring-0 placeholder:text-base focus-visible:ring-0 shadow-none dark:bg-transparent w-full sm:w-fit"
+                        className="outline-none border-none ring-0 placeholder:text-base focus-visible:ring-0 shadow-none dark:bg-transparent w-full sm:w-full"
                         style={{ minWidth: 0 }}
                     />
                 </div>

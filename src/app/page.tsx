@@ -18,7 +18,6 @@ import { toPng } from "html-to-image";
 import { useTheme } from "next-themes";
 
 interface GithubUser {
-    login: string;
     id: string;
     avatar_url: string;
     name: string | null;
@@ -61,7 +60,7 @@ export default function Main() {
                     const userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(target)}`);
                     if (!userRes.ok) return null;
                     const u: GithubUser = await userRes.json();
-                    return { login: u.login, id: target, avatar_url: u.avatar_url, name: u.name } as GithubUser;
+                    return { id: target, avatar_url: u.avatar_url, name: u.name } as GithubUser;
                 } catch {
                     return null;
                 }
@@ -206,7 +205,7 @@ export default function Main() {
                             el.style.overflowX = previousOverflow[idx] || "";
                         });
                         const link = document.createElement('a');
-                        link.download = `${user?.login || 'graph'}-${selectedYear || 'year'}.png`;
+                        link.download = `${user?.id || 'graph'}-${selectedYear || 'year'}.png`;
                         link.href = dataUrl;
                         link.click();
                     } catch (err) {
@@ -216,7 +215,7 @@ export default function Main() {
             />
 
             <Dialog open={showPalettes} onOpenChange={setShowPalettes}>
-                <DialogContent className="w-[95vw] sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
+                <DialogContent className="min-w-screen sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
                     <DialogHeader className="px-4 pt-4">
                         <DialogTitle>Palettes</DialogTitle>
                     </DialogHeader>
@@ -227,7 +226,7 @@ export default function Main() {
             </Dialog>
 
             <Dialog open={showCustomize} onOpenChange={setShowCustomize}>
-                <DialogContent className="w-[95vw] sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
+                <DialogContent className="min-w-screen sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
                     <DialogHeader className="px-4 pt-4">
                         <DialogTitle>Customize</DialogTitle>
                     </DialogHeader>

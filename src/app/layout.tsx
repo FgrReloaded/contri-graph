@@ -3,6 +3,8 @@ import localFont from 'next/font/local'
 import "./globals.css";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/providers/theme-provider"
+import { Analytics } from '@vercel/analytics/next';
+
 
 const grotesk = localFont({
   src: './grotesk.ttf',
@@ -33,6 +35,7 @@ export default function RootLayout({
           <Header />
           {children}
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
