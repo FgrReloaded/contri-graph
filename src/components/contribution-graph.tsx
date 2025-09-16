@@ -99,13 +99,13 @@ export function ContributionGraph({
     if (shape === 'circle') return { borderRadius: 9999 };
     return { borderRadius: 4 };
   }, [shape]);
-  
+
   const getColor = (day: ContributionDay | null) => {
     if (!day || !day.date) return 'rgba(16, 185, 129, 0.08)';
     const level = Math.max(0, Math.min(4, day.intensity));
     const stops = [0, 1, 2, 3, 4].map((i) => minOpacity + (i * (maxOpacity - minOpacity)) / 4);
     const alpha = stops[level];
-    // Convert base hex to rgb
+
     const r = parseInt(baseHex.slice(1, 3), 16);
     const g = parseInt(baseHex.slice(3, 5), 16);
     const b = parseInt(baseHex.slice(5, 7), 16);
@@ -136,11 +136,13 @@ export function ContributionGraph({
 
 
       <div ref={exportRef as any} className="relative min-w-fit pb-6" data-export="contribution-graph">
-        <Conditional condition={!!user}>
-          <div className="px-1 pt-1">
-            <UserBadge avatarUrl={user!.avatar_url} name={user!.name} id={user!.id} login={user!.login} />
-          </div>
-        </Conditional>
+        {
+          user && (
+            <div className="px-1 pt-1">
+              <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} login={user.login} />
+            </div>
+          )
+        }
         <div className="flex mb-2">
           <div className="flex-1 grid grid-cols-12 gap-0">
             {MONTHS.map((month) => (

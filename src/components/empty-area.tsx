@@ -1,6 +1,6 @@
-type EmptyAreaProps = { isLoading?: boolean };
+type EmptyAreaProps = { isLoading?: boolean; error?: string };
 
-export default function EmptyArea({ isLoading = false }: EmptyAreaProps) {
+export default function EmptyArea({ isLoading = false, error }: EmptyAreaProps) {
     const weeks = 52;
     const days = 7;
 
@@ -29,6 +29,17 @@ export default function EmptyArea({ isLoading = false }: EmptyAreaProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 12a8 8 0 018-8" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12a8 8 0 01-8 8" opacity=".3" />
                 </svg>
+            ) : error ? (
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    className="w-7 h-7 text-red-500 dark:text-red-400 mb-4"
+                    aria-hidden
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v4m0 4h.01M10.29 3.86l-8.4 14.57A1.5 1.5 0 003.21 21h17.58a1.5 1.5 0 001.32-2.57l-8.4-14.57a1.5 1.5 0 00-2.62 0z" />
+                </svg>
             ) : (
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -47,17 +58,22 @@ export default function EmptyArea({ isLoading = false }: EmptyAreaProps) {
                         Generating… please wait a moment
                     </p>
                 </div>
-            ) :
-                (
-                    <div className="rounded-xl border border-dashed border-gray-300 dark:border-gray-700 backdrop-blur-sm px-5 py-4 text-center max-w-xl">
-                        <p className="text-gray-700 dark:text-gray-200 font-medium">
-                            Enter a GitHub username above
-                        </p>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
-                            Then hit Generate to see the contribution graph.
-                        </p>
-                    </div>
-                )}
+            ) : error ? (
+                <div className="rounded-xl border border-dashed border-red-300/70 dark:border-red-700/70 backdrop-blur-sm px-5 py-4 text-center max-w-xl">
+                    <p className="text-red-600 dark:text-red-400 mt-1 text-sm">
+                        Double-check the username and try again.
+                    </p>
+                </div>
+            ) : (
+                <div className="rounded-xl border border-dashed border-gray-300 dark:border-gray-700 backdrop-blur-sm px-5 py-4 text-center max-w-xl">
+                    <p className="text-gray-700 dark:text-gray-200 font-medium">
+                        Enter a GitHub username above
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
+                        Then hit Generate to see the contribution graph.
+                    </p>
+                </div>
+            )}
 
             <div className="mt-3">
                 <div className="grid grid-rows-7 grid-flow-col gap-[3px]" aria-hidden>

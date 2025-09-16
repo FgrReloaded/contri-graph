@@ -3,13 +3,16 @@
 import Image from 'next/image';
 
 interface UserBadgeProps {
-    avatarUrl: string;
-    name: string | null;
-    id: string;
-    login: string;
+    avatarUrl?: string;
+    name?: string | null;
+    id?: string;
+    login?: string;
 }
 
 export default function UserBadge({ avatarUrl, name, id, login }: UserBadgeProps) {
+    if (!avatarUrl || !name || !id || !login) {
+        return null;
+    }
     return (
         <div className="flex items-center gap-3 p-3">
             <Image

@@ -11,7 +11,7 @@ export interface GraphAppearance {
 
 export const defaultGraphAppearance: GraphAppearance = {
   baseColor: '#10b981',
-  minOpacity: 0.15,
+  minOpacity: 0.1,
   maxOpacity: 1,
   size: 12,
   gap: 2,
