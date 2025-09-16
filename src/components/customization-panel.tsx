@@ -102,6 +102,9 @@ export default function CustomizationPanel() {
                             <SelectItem value="rounded">Rounded</SelectItem>
                             <SelectItem value="square">Square</SelectItem>
                             <SelectItem value="circle">Circle</SelectItem>
+                            <SelectItem value="diamond">Diamond</SelectItem>
+                            <SelectItem value="triangle">Triangle</SelectItem>
+                            <SelectItem value="hexagon">Hexagon</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

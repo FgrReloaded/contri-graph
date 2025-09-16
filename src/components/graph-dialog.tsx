@@ -19,6 +19,7 @@ interface GraphDialogProps {
     selectedYear: string
     onYearChange: (year: string) => void
     user: GithubUser | null
+    showTotal?: boolean
 }
 
 export default function GraphDialog({
@@ -28,6 +29,7 @@ export default function GraphDialog({
     selectedYear,
     onYearChange,
     user,
+    showTotal = true,
 }: GraphDialogProps) {
     return (
         <Dialog>
@@ -41,6 +43,7 @@ export default function GraphDialog({
                         selectedYear={selectedYear}
                         onYearChange={onYearChange}
                         user={user}
+                        showTotal={showTotal}
                     />
                 </div>
                 <DialogFooter>

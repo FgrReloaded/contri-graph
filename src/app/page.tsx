@@ -36,6 +36,7 @@ export default function Main() {
     const [downloadOpen, setDownloadOpen] = useState(false);
     const [showPalettes, setShowPalettes] = useState(false);
     const [showCustomize, setShowCustomize] = useState(false);
+    const [showTotal, setShowTotal] = useState(true);
 
 
     async function fetchData(target: string) {
@@ -112,6 +113,28 @@ export default function Main() {
                                 </Button>
                             </div>
                             <div className="flex items-center gap-4 ml-auto">
+                                <Button
+                                    className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
+                                    variant={"ghost"}
+                                    size={"sm"}
+                                    onClick={() => setShowTotal((s) => !s)}
+                                >
+                                    {showTotal ? (
+                                        <>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                                            </svg>
+                                            <span className="text-sm text-gray-700 dark:text-gray-400">Hide total</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M4 18h8" />
+                                            </svg>
+                                            <span className="text-sm text-gray-700 dark:text-gray-400">Show total</span>
+                                        </>
+                                    )}
+                                </Button>
                                 {data && (
                                     <GraphDialog
                                         triggerClassName="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
@@ -125,6 +148,7 @@ export default function Main() {
                                             </div>
                                         )}
                                         user={user}
+                                        showTotal={showTotal}
                                         data={data}
                                         selectedYear={selectedYear}
                                         onYearChange={setSelectedYear}
@@ -151,6 +175,7 @@ export default function Main() {
                                 onYearChange={setSelectedYear}
                                 user={user}
                                 exportRef={exportRef}
+                                showTotal={showTotal}
                             />
                         </div>
                     </div>

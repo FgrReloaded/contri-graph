@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useCallback } from 'react';
 import type { CSSProperties, Ref } from 'react';
-import type { ContributionDay, AllYearsData } from '@/types/contributions';
+import type { ContributionDay, AllYearsData, YearlySummary } from '@/types/contributions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import UserBadge from '@/components/user-badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -10,7 +10,7 @@ import { useGraphAppearanceStore } from '@/store/graph-appearance';
 import Conditional from './conditional';
 import { Button } from './ui/button';
 
-type DotShape = 'rounded';
+// removed unused local DotShape type; shape comes from store
 
 interface ContributionGraphProps {
   data: AllYearsData;
@@ -18,6 +18,7 @@ interface ContributionGraphProps {
   onYearChange?: (year: string) => void;
   user?: { login: string; id: string; avatar_url: string; name: string | null } | null;
   exportRef?: Ref<HTMLDivElement>;
+  showTotal?: boolean;
 }
 
 const MONTHS = [
@@ -31,6 +32,7 @@ export function ContributionGraph({
   onYearChange,
   user,
   exportRef,
+  showTotal = true,
 }: ContributionGraphProps) {
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -97,6 +99,9 @@ export function ContributionGraph({
   const dotShapeStyle: CSSProperties = useMemo(() => {
     if (shape === 'square') return { borderRadius: 0 };
     if (shape === 'circle') return { borderRadius: 9999 };
+    if (shape === 'diamond') return { borderRadius: 0, clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' };
+    if (shape === 'triangle') return { borderRadius: 0, clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' };
+    if (shape === 'hexagon') return { borderRadius: 0, clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)' };
     return { borderRadius: 4 };
   }, [shape]);
 
@@ -114,10 +119,23 @@ export function ContributionGraph({
 
   const dotStyleBase: CSSProperties = { width: size, height: size, ...dotShapeStyle };
 
+  const yearTotal = useMemo(() => {
+    if (!selectedYear) return null;
+    const y = data.years;
+    if (Array.isArray(y)) {
+      const found = (y as YearlySummary[]).find((ys) => ys.year === selectedYear);
+      return found?.total ?? null;
+    }
+    const summary = (y as { [year: string]: YearlySummary })[selectedYear];
+    return summary?.total ?? null;
+  }, [data.years, selectedYear]);
+
   return (
     <ScrollArea className="w-full">
       <div className="flex items-center justify-between mb-4 p-1 gap-2 flex-wrap">
-        <h3 className="text-lg font-semibold">Contribution Activity</h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-lg font-semibold">Contribution Activity</h3>
+        </div>
         {years.length > 1 && (
           <Select value={selectedYear || years[0]} onValueChange={(v) => onYearChange?.(v)}>
             <SelectTrigger className="min-w-[110px]">
@@ -136,13 +154,16 @@ export function ContributionGraph({
 
 
       <div ref={exportRef as any} className="relative min-w-fit pb-6" data-export="contribution-graph">
-        {
-          user && (
-            <div className="px-1 pt-1">
+        <div className="px-1 pt-1 flex items-center justify-between">
+          <div>
+            {user && (
               <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} login={user.login} />
-            </div>
-          )
-        }
+            )}
+          </div>
+          {showTotal && yearTotal !== null && (
+            <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
+          )}
+        </div>
         <div className="flex mb-2 overflow-x-auto">
           <div className="flex-1 grid grid-cols-12 gap-0 min-w-[600px]">
             {MONTHS.map((month) => (

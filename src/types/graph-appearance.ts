@@ -1,4 +1,4 @@
-export type GraphDotShape = 'rounded' | 'square' | 'circle'
+export type GraphDotShape = 'rounded' | 'square' | 'circle' | 'diamond' | 'triangle' | 'hexagon'
 
 export interface GraphAppearance {
   baseColor: string
