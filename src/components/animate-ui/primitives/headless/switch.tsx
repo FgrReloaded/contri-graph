@@ -37,6 +37,7 @@ function Switch<TTag extends React.ElementType = typeof motion.button>(
   const [isPressed, setIsPressed] = React.useState(false);
 
   return (
+    // @ts-expect-error
     <SwitchPrimitive
       data-slot="switch"
       whileTap="tap"
