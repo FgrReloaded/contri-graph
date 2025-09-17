@@ -3,19 +3,20 @@
 import SearchBox from "@/components/search-box";
 import EmptyArea from "@/components/empty-area";
 import { useRef, useState } from "react";
-import GraphSelector from "@/components/graph-selector";
-import { ContributionGraph } from "@/components/contribution-graph";
 import type { AllYearsData } from "@/types/contributions";
 import Conditional from "@/components/conditional";
 import GraphTypeSelector from "@/components/graph-type-selector";
 import { Button } from "@/components/ui/button";
-import CustomizationPanel from "@/components/customization-panel";
 import { useGraphAppearanceStore } from "@/store/graph-appearance";
-import GraphDialog from "@/components/graph-dialog";
-import DownloadDialog from "@/components/download-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { toPng } from "html-to-image";
 import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
+
+const GraphSelector = dynamic(() => import("@/components/graph-selector"), { ssr: false, loading: () => null });
+const CustomizationPanel = dynamic(() => import("@/components/customization-panel"), { ssr: false, loading: () => null });
+const GraphDialog = dynamic(() => import("@/components/graph-dialog"), { ssr: false, loading: () => null });
+const DownloadDialog = dynamic(() => import("@/components/download-dialog"), { ssr: false });
+const ContributionGraph = dynamic(() => import("@/components/contribution-graph").then(m => ({ default: m.ContributionGraph })), { ssr: false, loading: () => null });
 
 interface GithubUser {
     id: string;
@@ -187,36 +188,39 @@ export default function Main() {
                     </div>
                 </div>
             </Conditional>
-            <DownloadDialog
-                open={downloadOpen}
-                onOpenChange={setDownloadOpen}
-                initialColor={resolvedTheme === "dark" ? "#0b0b0f" : "#ffffff"}
-                onConfirm={async (bg) => {
-                    if (!exportRef.current) return;
-                    try {
-                        const scrollables = Array.from(exportRef.current.querySelectorAll<HTMLElement>(".overflow-x-auto"));
-                        const previousOverflow: string[] = [];
-                        scrollables.forEach((el) => {
-                            previousOverflow.push(el.style.overflowX);
-                            el.style.overflowX = "visible";
-                        });
-                        const dataUrl = await toPng(exportRef.current, {
-                            cacheBust: true,
-                            pixelRatio: 2,
-                            backgroundColor: bg === "transparent" ? undefined : bg,
-                        });
-                        scrollables.forEach((el, idx) => {
-                            el.style.overflowX = previousOverflow[idx] || "";
-                        });
-                        const link = document.createElement('a');
-                        link.download = `${user?.id || 'graph'}-${selectedYear || 'year'}.png`;
-                        link.href = dataUrl;
-                        link.click();
-                    } catch (err) {
-                        console.error('Failed to export image', err);
-                    }
-                }}
-            />
+            {downloadOpen && (
+                <DownloadDialog
+                    open={downloadOpen}
+                    onOpenChange={setDownloadOpen}
+                    initialColor={resolvedTheme === "dark" ? "#0b0b0f" : "#ffffff"}
+                    onConfirm={async (bg) => {
+                        if (!exportRef.current) return;
+                        try {
+                            const { toPng } = await import("html-to-image");
+                            const scrollables = Array.from(exportRef.current.querySelectorAll<HTMLElement>(".overflow-x-auto"));
+                            const previousOverflow: string[] = [];
+                            scrollables.forEach((el) => {
+                                previousOverflow.push(el.style.overflowX);
+                                el.style.overflowX = "visible";
+                            });
+                            const dataUrl = await toPng(exportRef.current, {
+                                cacheBust: true,
+                                pixelRatio: 2,
+                                backgroundColor: bg === "transparent" ? undefined : bg,
+                            });
+                            scrollables.forEach((el, idx) => {
+                                el.style.overflowX = previousOverflow[idx] || "";
+                            });
+                            const link = document.createElement('a');
+                            link.download = `${user?.id || 'graph'}-${selectedYear || 'year'}.png`;
+                            link.href = dataUrl;
+                            link.click();
+                        } catch (err) {
+                            console.error('Failed to export image', err);
+                        }
+                    }}
+                />
+            )}
 
             <Dialog open={showPalettes} onOpenChange={setShowPalettes}>
                 <DialogContent className="min-w-[95vw] sm:w-[80vw] max-h-[85vh] overflow-auto p-0">

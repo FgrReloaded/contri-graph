@@ -43,13 +43,9 @@ export const metadata: Metadata = {
     description: "Visualize your GitHub contributions",
     images: ["/og-image.png"],
   },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0b0d" },
-  ],
   category: "utilities",
   other: {
-    "creator": "Contri Graph",
+    "creator": "Nitish Singh",
   },
 };
 
