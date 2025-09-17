@@ -75,8 +75,8 @@ export default function EmptyArea({ isLoading = false, error }: EmptyAreaProps) 
                 </div>
             )}
 
-            <div className="mt-3">
-                <div className="grid grid-rows-7 grid-flow-col gap-[3px]" aria-hidden>
+            <div className="mt-3 max-sm:w-full overflow-x-hidden">
+                <div className="grid grid-rows-7 grid-flow-col gap-[3px] overflow-x-hidden" aria-hidden>
                     {Array.from({ length: weeks }).map((_, weekIndex) => (
                         <div key={weekIndex} className="contents">
                             {Array.from({ length: days }).map((_, dayIndex) => (

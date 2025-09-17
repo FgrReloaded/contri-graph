@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className="h-screen overflow-hidden"
+        className="h-screen sm:overflow-y-hidden overflow-x-hidden"
         style={grotesk.style}
       >
         <ThemeProvider

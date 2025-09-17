@@ -93,25 +93,7 @@ export default function Main() {
                     <div className="w-full lg:w-3/5 h-full border-l border-r flex flex-col">
                         <GraphTypeSelector />
                         <div className="p-2 border-b flex justify-between items-center gap-2">
-                            <div className="flex items-center gap-2 lg:hidden">
-                                <Button
-                                    className="px-2 py-1"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setShowPalettes(true)}
-                                >
-                                    Palettes
-                                </Button>
-                                <Button
-                                    className="px-2 py-1"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setShowCustomize(true)}
-                                >
-                                    Customize
-                                </Button>
-                            </div>
-                            <div className="flex items-center gap-4 ml-auto">
+                            <div className="flex items-center gap-4 ml-auto max-sm:justify-between max-sm:w-full">
                                 <Button
                                     className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
                                     variant={"ghost"}
@@ -134,36 +116,58 @@ export default function Main() {
                                         </>
                                     )}
                                 </Button>
-                                {data && (
-                                    <GraphDialog
-                                        triggerClassName="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
-                                        triggerContent={(
-                                            <div className="flex items-center gap-1">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                <span className="text-sm text-gray-700 dark:text-gray-400">Preview</span>
-                                            </div>
-                                        )}
-                                        user={user}
-                                        showTotal={showTotal}
-                                        data={data}
-                                        selectedYear={selectedYear}
-                                        onYearChange={setSelectedYear}
+                                <div className="flex gap-2">
+                                    {data && (
+                                        <GraphDialog
+                                            triggerClassName="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
+                                            triggerContent={(
+                                                <div className="flex items-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    <span className="text-sm text-gray-700 dark:text-gray-400 max-sm:hidden">Preview</span>
+                                                </div>
+                                            )}
+                                            user={user}
+                                            showTotal={showTotal}
+                                            data={data}
+                                            selectedYear={selectedYear}
+                                            onYearChange={setSelectedYear}
 
-                                    />
-                                )}
+                                        />
+                                    )}
+                                    <Button
+                                        className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
+                                        variant={"ghost"}
+                                        size={"sm"}
+                                        onClick={() => setDownloadOpen(true)}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                                        </svg>
+                                        <span className="text-sm text-gray-700 dark:text-gray-400 max-sm:hidden">Download</span>
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className=" border-b flex justify-between items-center gap-2">
+                            <div className="flex items-center gap-2 lg:hidden w-full justify-center">
                                 <Button
-                                    className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
-                                    variant={"ghost"}
-                                    size={"sm"}
-                                    onClick={() => setDownloadOpen(true)}
+                                    className="px-2 py-1 border-r rounded-none w-1/2"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setShowPalettes(true)}
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
-                                    </svg>
-                                    <span className="text-sm text-gray-700 dark:text-gray-400">Download</span>
+                                    Palettes
+                                </Button>
+                                <Button
+                                    className="px-2 py-1 w-1/2"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setShowCustomize(true)}
+                                >
+                                    Customize
                                 </Button>
                             </div>
                         </div>
@@ -215,7 +219,7 @@ export default function Main() {
             />
 
             <Dialog open={showPalettes} onOpenChange={setShowPalettes}>
-                <DialogContent className="min-w-screen sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
+                <DialogContent className="min-w-[95vw] sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
                     <DialogHeader className="px-4 pt-4">
                         <DialogTitle>Palettes</DialogTitle>
                     </DialogHeader>
@@ -226,7 +230,7 @@ export default function Main() {
             </Dialog>
 
             <Dialog open={showCustomize} onOpenChange={setShowCustomize}>
-                <DialogContent className="min-w-screen sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
+                <DialogContent className="min-w-[95vw] sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
                     <DialogHeader className="px-4 pt-4">
                         <DialogTitle>Customize</DialogTitle>
                     </DialogHeader>
