@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils";
 import { PALETTES } from "@/lib/constant";
 import { useGraphAppearanceStore } from "@/store/graph-appearance";
+import { useGraphViewStore } from "@/store/graph-view";
 
 interface GraphSelectorProps {
     value?: string
@@ -14,6 +15,8 @@ interface GraphSelectorProps {
 export default function GraphSelector({ value, onSelect }: GraphSelectorProps) {
     const [selected, setSelected] = useState<string>(value || 'teal-mint')
     const setBaseColor = useGraphAppearanceStore((s) => s.setBaseColor)
+    const mode = useGraphViewStore((s) => s.mode)
+    const setMode = useGraphViewStore((s) => s.setMode)
 
     useEffect(() => {
         if (value && value !== selected) setSelected(value)
@@ -32,16 +35,24 @@ export default function GraphSelector({ value, onSelect }: GraphSelectorProps) {
     return (
         <div className="h-full lg:h-screen flex flex-col">
             <div className="w-full flex justify-center items-center text-center border-b">
-                <div className="w-1/2 h-full bg-primary p-4 text-white">
+                <button
+                    type="button"
+                    onClick={() => setMode('grid')}
+                    className={cn("w-1/2 h-full p-4 cursor-pointer", mode === 'grid' ? "bg-primary text-white" : "")}
+                >
                     <h1>Graphs</h1>
-                </div>
-                <div className="w-1/2 h-full p-4 cursor-default">
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setMode('chart')}
+                    className={cn("w-1/2 h-full p-4 cursor-pointer", mode === 'chart' ? "bg-primary text-white" : "")}
+                >
                     <h1>Charts</h1>
-                </div>
+                </button>
             </div>
             <div className="w-full flex-1 min-h-0">
                 <ScrollArea className="h-full w-full pr-2">
-                    <div className="p-3 flex flex-wrap justify-center items-center gap-3 pb-36">
+                    <div className="p-3 flex flex-wrap justify-center items-center gap-3 pb-40">
                         {PALETTES.map((p) => (
                             <div
                                 key={p.key}

@@ -8,6 +8,8 @@ import UserBadge from '@/components/user-badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useGraphAppearanceStore } from '@/store/graph-appearance';
 import { Button } from './ui/button';
+import { useGraphViewStore } from '@/store/graph-view';
+import { ContributionBarChart } from './charts/contribution-bar-chart';
 
 interface ContributionGraphProps {
   data: AllYearsData;
@@ -33,6 +35,8 @@ export function ContributionGraph({
 }: ContributionGraphProps) {
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const mode = useGraphViewStore((s) => s.mode)
+  const chartType = useGraphViewStore((s) => s.chartType)
 
   const contributions = Array.isArray(data.contributions)
     ? data.contributions
@@ -148,8 +152,21 @@ export function ContributionGraph({
           </Select>
         )}
       </div>
-
-
+      {mode === 'chart' && chartType === 'bar' ? (
+        <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
+          <div className="px-1 pt-1 flex items-center justify-between">
+            <div>
+              {user && (
+                <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
+              )}
+            </div>
+            {showTotal && yearTotal !== null && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
+            )}
+          </div>
+          <ContributionBarChart contributions={currentYearContributions} />
+        </div>
+      ) : (
       <div ref={exportRef as any} className="relative min-w-fit pb-6" data-export="contribution-graph">
         <div className="px-1 pt-1 flex items-center justify-between">
           <div>
@@ -213,6 +230,7 @@ export function ContributionGraph({
           </div>
         )}
       </div>
+      )}
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
   );

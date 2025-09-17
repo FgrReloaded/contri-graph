@@ -31,10 +31,10 @@ function parseContributionDay(
   index: number,
   totalContributions: number
 ): ContributionDay {
-  // biome-ignore lint/suspicious/noExplicitAny: cheerio element types are complex
   const dayElement = document(element as any);
   const date = dayElement.attr('data-date');
   const level = dayElement.attr('data-level');
+  const id = dayElement.attr('id');
 
   if (!date || level === undefined) {
     throw new Error('Required contribution day attributes missing');
@@ -43,9 +43,20 @@ function parseContributionDay(
   const intensity = parseInt(level, 10);
   const color = CONTRIBUTION_COLORS[intensity as keyof typeof CONTRIBUTION_COLORS];
 
+  let count = 0;
+  if (id) {
+    const label = document(`[for="${id}"]`).text().trim();
+    if (label) {
+      const match = label.match(/(\d{1,3}(?:,\d{3})*|\d+)\s+contribution/i);
+      if (match) {
+        count = parseInt(match[1].replace(/,/g, ''), 10);
+      }
+    }
+  }
+
   return {
     date,
-    count: index === 0 ? totalContributions : 0,
+    count,
     color,
     intensity
   };
@@ -62,9 +73,7 @@ export function parseYearContributions(
     throw new Error('No contribution days found');
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: cheerio element types are complex
   const firstDay = document(contributionDays[0] as any);
-  // biome-ignore lint/suspicious/noExplicitAny: cheerio element types are complex
   const lastDay = document(contributionDays[contributionDays.length - 1] as any);
 
   const startDate = firstDay.attr('data-date');
