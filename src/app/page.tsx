@@ -16,6 +16,7 @@ import DownloadDialog from "@/components/download-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toPng } from "html-to-image";
 import { useTheme } from "next-themes";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface GithubUser {
     id: string;
@@ -151,8 +152,8 @@ export default function Main() {
                                 </div>
                             </div>
                         </div>
-                        <div className=" border-b flex justify-between items-center gap-2">
-                            <div className="flex items-center gap-2 lg:hidden w-full justify-center">
+                        <div className=" border-b flex justify-between items-center gap-2 lg:hidden">
+                            <div className="flex items-center gap-2 w-full justify-center">
                                 <Button
                                     className="px-2 py-1 border-r rounded-none w-1/2"
                                     variant="ghost"
@@ -171,7 +172,7 @@ export default function Main() {
                                 </Button>
                             </div>
                         </div>
-                        <div className="p-6">
+                        <ScrollArea className="p-6 pb-0 h-[60vh]">
                             <ContributionGraph
                                 data={data!}
                                 selectedYear={selectedYear}
@@ -180,7 +181,7 @@ export default function Main() {
                                 exportRef={exportRef}
                                 showTotal={showTotal}
                             />
-                        </div>
+                        </ScrollArea>
                     </div>
                     <div className="hidden lg:block lg:w-1/5">
                         <CustomizationPanel />

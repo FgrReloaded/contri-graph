@@ -5,7 +5,6 @@ import type { CSSProperties, Ref } from 'react';
 import type { ContributionDay, AllYearsData, YearlySummary } from '@/types/contributions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import UserBadge from '@/components/user-badge';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useGraphAppearanceStore } from '@/store/graph-appearance';
 import { Button } from './ui/button';
 import { useGraphViewStore } from '@/store/graph-view';
@@ -137,7 +136,7 @@ export function ContributionGraph({
   }, [data.years, selectedYear]);
 
   return (
-    <ScrollArea className="w-full">
+    <div className="w-full">
       <div className="flex items-center justify-between mb-4 p-1 gap-2 flex-wrap">
         <div className="flex items-center gap-3">
           <h3 className="text-lg font-semibold">Contribution Activity</h3>
@@ -306,7 +305,6 @@ export function ContributionGraph({
         )}
       </div>
       )}
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+    </div>
   );
 }
