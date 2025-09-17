@@ -32,7 +32,7 @@ export default function GraphSelector({ value, onSelect }: GraphSelectorProps) {
     return (
         <div className="h-full lg:h-screen flex flex-col">
             <div className="w-full flex justify-center items-center text-center border-b">
-                <div className="w-1/2 h-full bg-primary text-black p-4 cursor-default">
+                <div className="w-1/2 h-full bg-primary p-4 text-white">
                     <h1>Graphs</h1>
                 </div>
                 <div className="w-1/2 h-full p-4 cursor-default">
@@ -46,7 +46,7 @@ export default function GraphSelector({ value, onSelect }: GraphSelectorProps) {
                             <div
                                 key={p.key}
                                 onClick={() => handleSelect(p.key)}
-                                className={cn("w-full flex gap-3 p-3 text-left borde  rounded-sm hover:bg-accent cursor-pointer transition border", selected === p.key && "bg-primary hover:bg-primary/90")}
+                                className={cn("w-full flex gap-3 p-3 text-left dark:text-white text-black rounded-sm hover:bg-accent cursor-pointer transition border", selected === p.key && "bg-primary hover:bg-primary/90 text-white")}
                             >
                                 <div className=" flex items-center gap-1">
                                     {p.colors.slice(0, 5).map((c) => (
