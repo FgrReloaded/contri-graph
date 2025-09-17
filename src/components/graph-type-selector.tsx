@@ -19,15 +19,14 @@ export default function GraphTypeSelector() {
 
     if (mode === 'chart') {
         return (
-            <div className="border-b flex flex-wrap justify-center items-center gap-2 p-2">
+            <div className="border-b flex justify-center items-center">
                 {charts.map((c) => (
                     <button
                         key={c.key}
                         type="button"
                         onClick={() => setChartType(c.key)}
                         className={cn(
-                            "px-3 py-1.5 rounded text-sm border",
-                            chartType === c.key ? "bg-primary text-white border-primary" : "hover:bg-accent"
+                            "p-4 border-0 rounded-none bg-transparent w-1/6 cursor-pointer", chartType === c.key ? "bg-primary text-white" : ""
                         )}
                     >
                         {c.label}
