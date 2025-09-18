@@ -2,7 +2,6 @@
 
 import type { ContributionDay } from "@/types/contributions";
 import { useMemo } from "react";
-import { TrendingUp } from "lucide-react";
 import { Pie, PieChart } from "recharts";
 import {
   ChartConfig,
@@ -10,12 +9,29 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useGraphAppearanceStore } from "@/store/graph-appearance";
 
 interface ContributionPieChartProps {
   contributions: ContributionDay[];
 }
 
 export function ContributionPieChart({ contributions }: ContributionPieChartProps) {
+  const baseColor = useGraphAppearanceStore((s) => s.appearance.baseColor)
+  const minOpacity = useGraphAppearanceStore((s) => s.appearance.minOpacity)
+  const maxOpacity = useGraphAppearanceStore((s) => s.appearance.maxOpacity)
+
+  const generateColor = (index: number) => {
+    const totalSegments = 12
+    const clampedMin = Math.max(0, Math.min(1, minOpacity))
+    const clampedMax = Math.max(0, Math.min(1, maxOpacity))
+    const range = Math.max(0, clampedMax - clampedMin)
+    const t = totalSegments > 1 ? index / (totalSegments - 1) : 0
+    const opacity = Math.max(0, Math.min(1, clampedMin + range * t))
+    const alpha = Math.max(0, Math.min(255, Math.round(opacity * 255)))
+    return `${baseColor}${alpha.toString(16).padStart(2, '0')}`
+  }
+  
+
   const monthlyData = useMemo(() => {
     const buckets: { [monthIdx: number]: number } = { 0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0 }
     for (const d of contributions) {
@@ -32,11 +48,12 @@ export function ContributionPieChart({ contributions }: ContributionPieChartProp
     ]
     
     return monthNames.map((month, i) => ({
-      month: month.toLowerCase(),
+      key: month.toLowerCase(),
+      label: month,
       contributions: buckets[i] || 0,
-      fill: `var(--color-${month.toLowerCase()})`
+      fill: generateColor(i)
     })).filter(item => item.contributions > 0)
-  }, [contributions])
+  }, [contributions, baseColor, minOpacity, maxOpacity])
 
   const chartConfig = useMemo<ChartConfig>(() => {
     const config: ChartConfig = {
@@ -58,11 +75,6 @@ export function ContributionPieChart({ contributions }: ContributionPieChartProp
     return config
   }, [])
 
-  const totalContributions = useMemo(() => 
-    monthlyData.reduce((sum, item) => sum + item.contributions, 0), 
-    [monthlyData]
-  )
-
   return (
     <ChartContainer
       config={chartConfig}
@@ -70,7 +82,12 @@ export function ContributionPieChart({ contributions }: ContributionPieChartProp
     >
       <PieChart>
         <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-        <Pie data={monthlyData} dataKey="contributions" label nameKey="month" />
+        <Pie
+          data={monthlyData}
+          dataKey="contributions"
+          nameKey="label"
+          label={({ name, value }) => `${name} • ${value}`}
+        />
       </PieChart>
     </ChartContainer>
   )

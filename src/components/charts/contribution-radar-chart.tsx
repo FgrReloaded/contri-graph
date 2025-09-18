@@ -10,12 +10,16 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useGraphAppearanceStore } from "@/store/graph-appearance";
+
 
 interface ContributionRadarChartProps {
   contributions: ContributionDay[];
 }
 
 export function ContributionRadarChart({ contributions }: ContributionRadarChartProps) {
+  const baseColor = useGraphAppearanceStore((s) => s.appearance.baseColor)
+
   const monthly = useMemo(() => {
     const buckets: { [monthIdx: number]: number } = { 0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0 }
     for (const d of contributions) {
@@ -32,8 +36,8 @@ export function ContributionRadarChart({ contributions }: ContributionRadarChart
   }, [contributions])
 
   const chartConfig = useMemo<ChartConfig>(() => ({
-    contributions: { label: "Contributions", color: "var(--chart-1)" },
-  }), [])
+    contributions: { label: "Contributions", color: baseColor },
+  }), [baseColor])
 
   return (
     <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[280px] w-full">
@@ -43,7 +47,7 @@ export function ContributionRadarChart({ contributions }: ContributionRadarChart
         <PolarGrid />
         <Radar
           dataKey="contributions"
-          fill="var(--color-contributions)"
+          fill={baseColor}
           fillOpacity={0.6}
           dot={{ r: 3, fillOpacity: 1 }}
         />

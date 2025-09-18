@@ -12,7 +12,6 @@ const charts: { key: ReturnType<typeof useGraphViewStore.getState>["chartType"];
     { key: "line", label: "Line Charts" },
     { key: "pie", label: "Pie Charts" },
     { key: "radar", label: "Radar Charts" },
-    { key: "radial", label: "Radial Charts" },
 ]
 
 export default function GraphTypeSelector() {
@@ -31,7 +30,7 @@ export default function GraphTypeSelector() {
                             type="button"
                             onClick={() => setChartType(c.key)}
                             className={cn(
-                                "p-4 border-0 rounded-none bg-transparent w-1/6 cursor-pointer", chartType === c.key ? "bg-primary text-white" : ""
+                                "p-4 border-0 rounded-none bg-transparent w-1/5 cursor-pointer", chartType === c.key ? "bg-primary text-white" : ""
                             )}
                         >
                             {c.label}

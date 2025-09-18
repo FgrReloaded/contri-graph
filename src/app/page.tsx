@@ -160,7 +160,7 @@ export default function Main() {
                                     size="sm"
                                     onClick={() => setShowPalettes(true)}
                                 >
-                                    Palettes
+                                    Views & Colors
                                 </Button>
                                 <Button
                                     className="px-2 py-1 w-1/2"
@@ -222,7 +222,7 @@ export default function Main() {
             <Dialog open={showPalettes} onOpenChange={setShowPalettes}>
                 <DialogContent className="min-w-[95vw] sm:w-[80vw] max-h-[85vh] overflow-auto p-0">
                     <DialogHeader className="px-4 pt-4">
-                        <DialogTitle>Palettes</DialogTitle>
+                        <DialogTitle>Views & Colors</DialogTitle>
                     </DialogHeader>
                     <div className="px-2 pb-4">
                         <GraphSelector onSelect={(hex) => { setBaseColor(hex); setShowPalettes(false); }} />

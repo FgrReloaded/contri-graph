@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "./ui/label"
 import { useGraphAppearanceStore } from "@/store/graph-appearance"
+import { useGraphViewStore } from "@/store/graph-view"
 
 export default function CustomizationPanel() {
     const value = useGraphAppearanceStore((s) => s.appearance)
@@ -13,6 +14,7 @@ export default function CustomizationPanel() {
     const setSize = useGraphAppearanceStore((s) => s.setSize)
     const setGap = useGraphAppearanceStore((s) => s.setGap)
     const setShape = useGraphAppearanceStore((s) => s.setShape)
+    const mode = useGraphViewStore((s) => s.mode)
     return (
         <div className="h-full lg:h-screen flex flex-col">
             <div className="w-full flex justify-center items-center text-center border-b p-4">
@@ -38,76 +40,80 @@ export default function CustomizationPanel() {
                     </div>
                 </div>
 
-                <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Opacity range</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                        <div className="flex items-center gap-2">
-                            <span className="text-[11px] text-muted-foreground">Min</span>
+                {mode === "grid" && (
+                    <>
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Opacity range</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] text-muted-foreground">Min</span>
+                                    <Input
+                                        type="number"
+                                        step={0.05}
+                                        min={0}
+                                        max={1}
+                                        value={value.minOpacity}
+                                        onChange={(e) => setMinOpacity(clamp(parseFloat(e.target.value), 0, 1))}
+                                        className="h-8"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] text-muted-foreground">Max</span>
+                                    <Input
+                                        type="number"
+                                        step={0.05}
+                                        min={0}
+                                        max={1}
+                                        value={value.maxOpacity}
+                                        onChange={(e) => setMaxOpacity(clamp(parseFloat(e.target.value), 0, 1))}
+                                        className="h-8"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Dot size</Label>
                             <Input
                                 type="number"
-                                step={0.05}
+                                min={4}
+                                max={28}
+                                value={value.size}
+                                onChange={(e) => setSize(clamp(parseInt(e.target.value || '0'), 4, 28))}
+                                className="h-8"
+                            />  
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Gap</Label>
+                            <Input
+                                type="number"
                                 min={0}
-                                max={1}
-                                value={value.minOpacity}
-                                onChange={(e) => setMinOpacity(clamp(parseFloat(e.target.value), 0, 1))}
+                                max={12}
+                                value={value.gap}
+                                onChange={(e) => setGap(clamp(parseInt(e.target.value || '0'), 0, 12))}
                                 className="h-8"
                             />
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[11px] text-muted-foreground">Max</span>
-                            <Input
-                                type="number"
-                                step={0.05}
-                                min={0}
-                                max={1}
-                                value={value.maxOpacity}
-                                onChange={(e) => setMaxOpacity(clamp(parseFloat(e.target.value), 0, 1))}
-                                className="h-8"
-                            />
+
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Shape</Label>
+                            <Select value={value.shape} onValueChange={(v) => setShape(v as any)}>
+                                <SelectTrigger size="sm" className="w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="rounded">Rounded</SelectItem>
+                                    <SelectItem value="square">Square</SelectItem>
+                                    <SelectItem value="circle">Circle</SelectItem>
+                                    <SelectItem value="diamond">Diamond</SelectItem>
+                                    <SelectItem value="triangle">Triangle</SelectItem>
+                                    <SelectItem value="hexagon">Hexagon</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                    </div>
-                </div>
-
-                <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Dot size</Label>
-                    <Input
-                        type="number"
-                        min={4}
-                        max={28}
-                        value={value.size}
-                        onChange={(e) => setSize(clamp(parseInt(e.target.value || '0'), 4, 28))}
-                        className="h-8"
-                    />  
-                </div>
-
-                <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Gap</Label>
-                    <Input
-                        type="number"
-                        min={0}
-                        max={12}
-                        value={value.gap}
-                        onChange={(e) => setGap(clamp(parseInt(e.target.value || '0'), 0, 12))}
-                        className="h-8"
-                    />
-                </div>
-
-                <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Shape</Label>
-                    <Select value={value.shape} onValueChange={(v) => setShape(v as any)}>
-                        <SelectTrigger size="sm" className="w-full">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="rounded">Rounded</SelectItem>
-                            <SelectItem value="square">Square</SelectItem>
-                            <SelectItem value="circle">Circle</SelectItem>
-                            <SelectItem value="diamond">Diamond</SelectItem>
-                            <SelectItem value="triangle">Triangle</SelectItem>
-                            <SelectItem value="hexagon">Hexagon</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                    </>
+                )}
             </div>
         </div>
     )
