@@ -9,6 +9,7 @@ import { useGraphAppearanceStore } from '@/store/graph-appearance';
 import { Button } from './ui/button';
 import { useGraphViewStore } from '@/store/graph-view';
 import { useContributionChart } from './providers/contribution-chart-provider';
+import dynamic from 'next/dynamic';
 
 interface ContributionGraphProps {
   data: AllYearsData;
@@ -37,6 +38,7 @@ export function ContributionGraph({
   const mode = useGraphViewStore((s) => s.mode)
   const chartType = useGraphViewStore((s) => s.chartType)
   const ChartComponent = useContributionChart(chartType)
+  const ContributionGraph3D = useMemo(() => dynamic(() => import('./contribution-graph-3d'), { ssr: false }), [])
 
   const contributions = Array.isArray(data.contributions)
     ? data.contributions
@@ -165,6 +167,20 @@ export function ContributionGraph({
             )}
           </div>
           <ChartComponent contributions={currentYearContributions} />
+        </div>
+      ) : mode === 'grid-3d' ? (
+        <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
+          <div className="px-1 pt-1 flex items-center justify-between">
+            <div>
+              {user && (
+                <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
+              )}
+            </div>
+            {showTotal && yearTotal !== null && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
+            )}
+          </div>
+          <ContributionGraph3D contributions={currentYearContributions} />
         </div>
       ) : (
       <div ref={exportRef as any} className="relative min-w-fit pb-6" data-export="contribution-graph">

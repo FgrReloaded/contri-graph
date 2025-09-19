@@ -80,12 +80,20 @@ export default function GraphTypeSelector() {
 
     return (
         <div className="border-b flex justify-center items-center text-center">
-            <div className="p-4 w-1/2 bg-primary border-r cursor-default text-white">
+            <button
+                type="button"
+                onClick={() => useGraphViewStore.getState().setMode('grid')}
+                className={cn("p-4 w-1/2 border-r cursor-pointer", mode === 'grid' ? "bg-primary text-white" : "")}
+            >
                 <h1>2D Grid</h1>
-            </div>
-            <div className="p-4 w-1/2 text-gray-600">
-                <h1>3D (Coming Soon)</h1>
-            </div>
+            </button>
+            <button
+                type="button"
+                onClick={() => useGraphViewStore.getState().setMode('grid-3d')}
+                className={cn("p-4 w-1/2 cursor-pointer", mode === 'grid-3d' && "bg-primary text-white")}
+            >
+                <h1>3D Grid</h1>
+            </button>
         </div>
     )
 }

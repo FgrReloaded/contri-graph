@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 
-export type GraphViewMode = "grid" | "chart";
+export type GraphViewMode = "grid" | "grid-3d" | "chart";
 export type ChartType = "bar" | "area" | "line" | "pie" | "radar" | "radial";
 
 interface GraphViewState {

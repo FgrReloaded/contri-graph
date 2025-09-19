@@ -7,6 +7,7 @@ export interface GraphAppearance {
   size: number
   gap: number
   shape: GraphDotShape
+  base3DColor?: string
 }
 
 export const defaultGraphAppearance: GraphAppearance = {
@@ -16,6 +17,7 @@ export const defaultGraphAppearance: GraphAppearance = {
   size: 12,
   gap: 2,
   shape: 'rounded',
+  base3DColor: '#cccccc',
 }
 
 
