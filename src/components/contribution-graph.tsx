@@ -8,12 +8,7 @@ import UserBadge from '@/components/user-badge';
 import { useGraphAppearanceStore } from '@/store/graph-appearance';
 import { Button } from './ui/button';
 import { useGraphViewStore } from '@/store/graph-view';
-import { ContributionBarChart } from './charts/contribution-bar-chart';
-import { ContributionAreaChart } from './charts/contribution-area-chart';
-import { ContributionLineChart } from './charts/contribution-line-chart';
-import { ContributionRadarChart } from './charts/contribution-radar-chart';
-import { ContributionPieChart } from './charts/contribution-pie-chart';
-import { ContributionRadialChart } from './charts/contribution-radial-chart';
+import { useContributionChart } from './providers/contribution-chart-provider';
 
 interface ContributionGraphProps {
   data: AllYearsData;
@@ -41,6 +36,7 @@ export function ContributionGraph({
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const mode = useGraphViewStore((s) => s.mode)
   const chartType = useGraphViewStore((s) => s.chartType)
+  const ChartComponent = useContributionChart(chartType)
 
   const contributions = Array.isArray(data.contributions)
     ? data.contributions
@@ -156,7 +152,7 @@ export function ContributionGraph({
           </Select>
         )}
       </div>
-      {mode === 'chart' && chartType === 'bar' ? (
+      {mode === 'chart' ? (
         <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
           <div className="px-1 pt-1 flex items-center justify-between">
             <div>
@@ -168,77 +164,7 @@ export function ContributionGraph({
               <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
             )}
           </div>
-          <ContributionBarChart contributions={currentYearContributions} />
-        </div>
-      ) : mode === 'chart' && chartType === 'area' ? (
-        <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
-          <div className="px-1 pt-1 flex items-center justify-between">
-            <div>
-              {user && (
-                <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
-              )}
-            </div>
-            {showTotal && yearTotal !== null && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
-            )}
-          </div>
-          <ContributionAreaChart contributions={currentYearContributions} />
-        </div>
-      ) : mode === 'chart' && chartType === 'line' ? (
-        <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
-          <div className="px-1 pt-1 flex items-center justify-between">
-            <div>
-              {user && (
-                <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
-              )}
-            </div>
-            {showTotal && yearTotal !== null && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
-            )}
-          </div>
-          <ContributionLineChart contributions={currentYearContributions} />
-        </div>
-      ) : mode === 'chart' && chartType === 'radar' ? (
-        <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
-          <div className="px-1 pt-1 flex items-center justify-between">
-            <div>
-              {user && (
-                <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
-              )}
-            </div>
-            {showTotal && yearTotal !== null && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
-            )}
-          </div>
-          <ContributionRadarChart contributions={currentYearContributions} />
-        </div>
-      ) : mode === 'chart' && chartType === 'pie' ? (
-        <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
-          <div className="px-1 pt-1 flex items-center justify-between">
-            <div>
-              {user && (
-                <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
-              )}
-            </div>
-            {showTotal && yearTotal !== null && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
-            )}
-          </div>
-          <ContributionPieChart contributions={currentYearContributions} />
-        </div>
-      ) : mode === 'chart' && chartType === 'radial' ? (
-        <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
-          <div className="px-1 pt-1 flex items-center justify-between">
-            <div>
-              {user && (
-                <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
-              )}
-            </div>
-            {showTotal && yearTotal !== null && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
-            )}
-          </div>
-          <ContributionRadialChart contributions={currentYearContributions} />
+          <ChartComponent contributions={currentYearContributions} />
         </div>
       ) : (
       <div ref={exportRef as any} className="relative min-w-fit pb-6" data-export="contribution-graph">
