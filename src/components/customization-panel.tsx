@@ -15,6 +15,9 @@ export default function CustomizationPanel() {
     const setGap = useGraphAppearanceStore((s) => s.setGap)
     const setShape = useGraphAppearanceStore((s) => s.setShape)
     const mode = useGraphViewStore((s) => s.mode)
+    const chartType = useGraphViewStore((s) => s.chartType)
+    const chartVariant = useGraphViewStore((s) => s.chartVariant)
+    const setChartVariant = useGraphViewStore((s) => s.setChartVariant)
     return (
         <div className="h-full lg:h-screen flex flex-col">
             <div className="w-full flex justify-center items-center text-center border-b p-4">
@@ -39,6 +42,29 @@ export default function CustomizationPanel() {
                         />
                     </div>
                 </div>
+
+                {mode === "chart" && (
+                    <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Chart Variant</Label>
+                        <Select 
+                            value={chartVariant.type === chartType ? chartVariant.variant : "default"} 
+                            onValueChange={(variant) => {
+                                setChartVariant({ type: chartType, variant: variant as any })
+                            }}
+                        >
+                            <SelectTrigger size="sm" className="w-full">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {getChartVariants(chartType).map((variant) => (
+                                    <SelectItem key={variant.value} value={variant.value}>
+                                        {variant.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
 
                 {mode === "grid" && (
                     <>
@@ -122,4 +148,53 @@ export default function CustomizationPanel() {
 function clamp(n: number, min: number, max: number) {
     if (Number.isNaN(n)) return min
     return Math.max(min, Math.min(max, n))
+}
+
+function getChartVariants(chartType: string) {
+    switch (chartType) {
+        case "pie":
+            return [
+                { value: "default", label: "Default" },
+                { value: "stacked", label: "Stacked" },
+                { value: "interactive", label: "Interactive" },
+                { value: "donut", label: "Donut with Text" }
+            ]
+        case "bar":
+            return [
+                { value: "default", label: "Default" },
+                { value: "stacked", label: "Stacked" },
+                { value: "grouped", label: "Grouped" },
+                { value: "horizontal", label: "Horizontal" }
+            ]
+        case "area":
+            return [
+                { value: "default", label: "Default" },
+                { value: "stacked", label: "Stacked" },
+                { value: "gradient", label: "Gradient" },
+                { value: "smooth", label: "Smooth" }
+            ]
+        case "line":
+            return [
+                { value: "default", label: "Default" },
+                { value: "smooth", label: "Smooth" },
+                { value: "stepped", label: "Stepped" },
+                { value: "dashed", label: "Dashed" }
+            ]
+        case "radar":
+            return [
+                { value: "default", label: "Default" },
+                { value: "filled", label: "Filled" },
+                { value: "dotted", label: "Dotted" },
+                { value: "gradient", label: "Gradient" }
+            ]
+        case "radial":
+            return [
+                { value: "default", label: "Default" },
+                { value: "progress", label: "Progress" },
+                { value: "multi", label: "Multi" },
+                { value: "gauge", label: "Gauge" }
+            ]
+        default:
+            return [{ value: "default", label: "Default" }]
+    }
 }
