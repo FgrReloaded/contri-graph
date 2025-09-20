@@ -211,11 +211,22 @@ export default function Main() {
                                     el.style.overflowX = "visible";
                                 });
                                 
+                                const canvasElement = exportRef.current.querySelector('canvas');
+                                let originalCanvasDisplay = '';
+                                if (canvasElement) {
+                                    originalCanvasDisplay = (canvasElement as HTMLElement).style.display;
+                                    (canvasElement as HTMLElement).style.display = 'none';
+                                }
+                                
                                 const domDataUrl = await toPng(exportRef.current, {
                                     cacheBust: true,
                                     pixelRatio: 2,
                                     backgroundColor: bg === "transparent" ? undefined : bg,
                                 });
+                                
+                                if (canvasElement) {
+                                    (canvasElement as HTMLElement).style.display = originalCanvasDisplay;
+                                }
                                 
                                 scrollables.forEach((el, idx) => {
                                     el.style.overflowX = previousOverflow[idx] || "";
@@ -224,8 +235,14 @@ export default function Main() {
                                 const domImg = new Image();
                                 const canvasImg = new Image();
                                 
-                                await new Promise((resolve) => {
-                                    domImg.onload = canvasImg.onload = resolve;
+                                await new Promise<void>((resolve) => {
+                                    let loadedCount = 0;
+                                    const onLoad = () => {
+                                        loadedCount++;
+                                        if (loadedCount === 2) resolve();
+                                    };
+                                    domImg.onload = onLoad;
+                                    canvasImg.onload = onLoad;
                                     domImg.src = domDataUrl;
                                     canvasImg.src = canvasDataUrl;
                                 });
@@ -233,19 +250,18 @@ export default function Main() {
                                 tempCanvas.width = domImg.width;
                                 tempCanvas.height = domImg.height;
                                 
-                                tempCtx.drawImage(domImg, 0, 0);
-                                
-                                const canvasElement = exportRef.current.querySelector('canvas');
                                 if (canvasElement) {
                                     const rect = canvasElement.getBoundingClientRect();
                                     const containerRect = exportRef.current.getBoundingClientRect();
-                                    const x = (rect.left - containerRect.left) * 2; // *2 for pixelRatio
+                                    const x = (rect.left - containerRect.left) * 2; 
                                     const y = (rect.top - containerRect.top) * 2;
                                     const width = rect.width * 2;
                                     const height = rect.height * 2;
                                     
                                     tempCtx.drawImage(canvasImg, x, y, width, height);
                                 }
+                                
+                                tempCtx.drawImage(domImg, 0, 0);
                                 
                                 const link = document.createElement('a');
                                 link.download = `${user?.id || 'graph'}-${selectedYear || 'year'}.png`;

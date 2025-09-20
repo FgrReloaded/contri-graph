@@ -199,12 +199,13 @@ function ContributionGrid({
 
 const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }, ContributionGraph3DR3FProps>(({ 
   contributions, 
-  width = 1000, 
-  height = 520 
+  width = 800, 
+  height = 416 
 }, ref) => {
   const appearance = useGraphAppearanceStore((s) => s.appearance);
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rendererRef = useRef<any>(null);
 
   const maxCount = useMemo(() => {
     let max = 0;
@@ -219,8 +220,14 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
   };
 
   const captureCanvas = () => {
-    if (canvasRef.current) {
-      return canvasRef.current.toDataURL('image/png');
+    if (rendererRef.current) {
+      try {
+        rendererRef.current.render();
+        return rendererRef.current.domElement.toDataURL('image/png');
+      } catch (error) {
+        console.error('Error capturing 3D canvas:', error);
+        return null;
+      }
     }
     return null;
   };
@@ -241,6 +248,10 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
         }}
         style={{ width: '100%', height: '100%' }}
         shadows
+        gl={{ preserveDrawingBuffer: true }}
+        onCreated={({ gl }) => {
+          rendererRef.current = gl;
+        }}
       >
         <ambientLight intensity={0.3} />
         <directionalLight 
