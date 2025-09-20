@@ -80,6 +80,7 @@ function SwitchThumb<TTag extends React.ElementType = typeof motion.div>(
   } = props;
 
   return (
+    // @ts-expect-error-ignore
     <Component
       data-slot="switch-thumb"
       whileTap="tab"
@@ -119,6 +120,7 @@ function SwitchIcon<TTag extends React.ElementType = typeof motion.div>(
   }, [position, isChecked]);
 
   return (
+    // @ts-expect-error-ignore
     <Component
       data-slot={`switch-${position}-icon`}
       animate={isAnimated ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}

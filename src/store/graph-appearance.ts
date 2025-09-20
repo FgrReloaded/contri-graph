@@ -21,13 +21,40 @@ interface GraphAppearanceState {
 export const useGraphAppearanceStore = create<GraphAppearanceState>((set) => ({
   appearance: defaultGraphAppearance,
   setAppearance: (next) => set({ appearance: next }),
-  setBaseColor: (hex) => set((state) => ({ appearance: { ...state.appearance, baseColor: hex } })),
-  setMinOpacity: (value) => set((state) => ({ appearance: { ...state.appearance, minOpacity: value } })),
-  setMaxOpacity: (value) => set((state) => ({ appearance: { ...state.appearance, maxOpacity: value } })),
-  setSize: (value) => set((state) => ({ appearance: { ...state.appearance, size: value } })),
-  setGap: (value) => set((state) => ({ appearance: { ...state.appearance, gap: value } })),
-  setShape: (value) => set((state) => ({ appearance: { ...state.appearance, shape: value } })),
-  setBase3DColor: (hex) => set((state) => ({ appearance: { ...state.appearance, base3DColor: hex } })),
+  setBaseColor: (hex) =>
+    set((state) => ({
+      appearance: { ...state.appearance, baseColor: hex },
+    })),
+  setMinOpacity: (value) =>
+    set((state) => ({
+      appearance: { ...state.appearance, minOpacity: value },
+    })),
+  setMaxOpacity: (value) =>
+    set((state) => ({
+      appearance: { ...state.appearance, maxOpacity: value },
+    })),
+  setSize: (value) =>
+    set((state) => ({
+      appearance: { ...state.appearance, size: value },
+    })),
+  setGap: (value) =>
+    set((state) => ({
+      appearance: { ...state.appearance, gap: value },
+    })),
+  setShape: (value) =>
+    set((state) => ({
+      appearance: { ...state.appearance, shape: value },
+    })),
+  setBase3DColor: (hex) =>
+    set((state) => ({
+      appearance: { ...state.appearance, base3DColor: hex },
+    })),
+  setViewAngleDeg: (deg) =>
+    set((state) => ({
+      appearance: { ...state.appearance, viewAngleDeg: deg },
+    })),
+  setTiltDeg: (deg) =>
+    set((state) => ({
+      appearance: { ...state.appearance, tiltDeg: deg },
+    })),
 }));
-
-
