@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import type { CSSProperties, Ref } from 'react';
 import type { ContributionDay, AllYearsData, YearlySummary } from '@/types/contributions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,6 +18,7 @@ interface ContributionGraphProps {
   user?: { id: string; avatar_url: string; name: string | null } | null;
   exportRef?: Ref<HTMLDivElement>;
   showTotal?: boolean;
+  on3DRefReady?: (ref: { captureCanvas: () => string | null } | null) => void;
 }
 
 const MONTHS = [
@@ -32,13 +33,23 @@ export function ContributionGraph({
   user,
   exportRef,
   showTotal = true,
+  on3DRefReady,
 }: ContributionGraphProps) {
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const mode = useGraphViewStore((s) => s.mode)
   const chartType = useGraphViewStore((s) => s.chartType)
   const ChartComponent = useContributionChart(chartType)
-  const ContributionGraph3D = useMemo(() => dynamic(() => import('./contribution-graph-3d'), { ssr: false }), [])
+  const ContributionGraph3D = useMemo(() => dynamic(() => import('./contribution-graph-3d-r3f'), { ssr: false }), [])
+  const graph3DRef = useRef<{ captureCanvas: () => string | null }>(null)
+
+  useEffect(() => {
+    if (mode === 'grid-3d' && graph3DRef.current && on3DRefReady) {
+      on3DRefReady(graph3DRef.current);
+    } else if (mode !== 'grid-3d' && on3DRefReady) {
+      on3DRefReady(null);
+    }
+  }, [mode, on3DRefReady]);
 
   const contributions = Array.isArray(data.contributions)
     ? data.contributions
@@ -180,7 +191,7 @@ export function ContributionGraph({
               <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
             )}
           </div>
-          <ContributionGraph3D contributions={currentYearContributions} />
+          <ContributionGraph3D ref={graph3DRef} contributions={currentYearContributions} />
         </div>
       ) : (
       <div ref={exportRef as any} className="relative min-w-fit pb-6" data-export="contribution-graph">

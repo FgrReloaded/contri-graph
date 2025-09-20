@@ -33,6 +33,7 @@ export default function Main() {
     const setBaseColor = useGraphAppearanceStore((s) => s.setBaseColor);
     const [user, setUser] = useState<GithubUser | null>(null);
     const exportRef = useRef<HTMLDivElement | null>(null);
+    const graph3DRef = useRef<{ captureCanvas: () => string | null } | null>(null);
     const [downloadOpen, setDownloadOpen] = useState(false);
     const [showPalettes, setShowPalettes] = useState(false);
     const [showCustomize, setShowCustomize] = useState(false);
@@ -180,6 +181,7 @@ export default function Main() {
                                 user={user}
                                 exportRef={exportRef}
                                 showTotal={showTotal}
+                                on3DRefReady={(ref) => { graph3DRef.current = ref; }}
                             />
                         </ScrollArea>
                     </div>
@@ -195,6 +197,64 @@ export default function Main() {
                 onConfirm={async (bg) => {
                     if (!exportRef.current) return;
                     try {
+                        if (graph3DRef.current) {
+                            const canvasDataUrl = graph3DRef.current.captureCanvas();
+                            if (canvasDataUrl) {
+                                const tempCanvas = document.createElement('canvas');
+                                const tempCtx = tempCanvas.getContext('2d');
+                                if (!tempCtx) return;
+                                
+                                const scrollables = Array.from(exportRef.current.querySelectorAll<HTMLElement>(".overflow-x-auto"));
+                                const previousOverflow: string[] = [];
+                                scrollables.forEach((el) => {
+                                    previousOverflow.push(el.style.overflowX);
+                                    el.style.overflowX = "visible";
+                                });
+                                
+                                const domDataUrl = await toPng(exportRef.current, {
+                                    cacheBust: true,
+                                    pixelRatio: 2,
+                                    backgroundColor: bg === "transparent" ? undefined : bg,
+                                });
+                                
+                                scrollables.forEach((el, idx) => {
+                                    el.style.overflowX = previousOverflow[idx] || "";
+                                });
+                                
+                                const domImg = new Image();
+                                const canvasImg = new Image();
+                                
+                                await new Promise((resolve) => {
+                                    domImg.onload = canvasImg.onload = resolve;
+                                    domImg.src = domDataUrl;
+                                    canvasImg.src = canvasDataUrl;
+                                });
+                                
+                                tempCanvas.width = domImg.width;
+                                tempCanvas.height = domImg.height;
+                                
+                                tempCtx.drawImage(domImg, 0, 0);
+                                
+                                const canvasElement = exportRef.current.querySelector('canvas');
+                                if (canvasElement) {
+                                    const rect = canvasElement.getBoundingClientRect();
+                                    const containerRect = exportRef.current.getBoundingClientRect();
+                                    const x = (rect.left - containerRect.left) * 2; // *2 for pixelRatio
+                                    const y = (rect.top - containerRect.top) * 2;
+                                    const width = rect.width * 2;
+                                    const height = rect.height * 2;
+                                    
+                                    tempCtx.drawImage(canvasImg, x, y, width, height);
+                                }
+                                
+                                const link = document.createElement('a');
+                                link.download = `${user?.id || 'graph'}-${selectedYear || 'year'}.png`;
+                                link.href = tempCanvas.toDataURL('image/png');
+                                link.click();
+                                return;
+                            }
+                        }
+                        
                         const scrollables = Array.from(exportRef.current.querySelectorAll<HTMLElement>(".overflow-x-auto"));
                         const previousOverflow: string[] = [];
                         scrollables.forEach((el) => {
