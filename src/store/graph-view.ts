@@ -9,7 +9,7 @@ export type PieChartVariant = "default" | "stacked" | "interactive" | "donut";
 export type BarChartVariant = "default" | "stacked" | "grouped" | "horizontal";
 export type AreaChartVariant = "default" | "stacked" | "gradient" | "smooth";
 export type LineChartVariant = "default" | "smooth" | "stepped" | "dashed";
-export type RadarChartVariant = "default" | "filled" | "dotted" | "gradient";
+export type RadarChartVariant = "default" | "lines-only" | "grid-filled" | "grid-circle-filled" | "grid-none";
 export type RadialChartVariant = "default" | "progress" | "multi" | "gauge";
 
 export type ChartVariant = 

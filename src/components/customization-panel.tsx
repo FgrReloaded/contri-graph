@@ -183,9 +183,10 @@ function getChartVariants(chartType: string) {
         case "radar":
             return [
                 { value: "default", label: "Default" },
-                { value: "filled", label: "Filled" },
-                { value: "dotted", label: "Dotted" },
-                { value: "gradient", label: "Gradient" }
+                { value: "lines-only", label: "Lines Only" },
+                { value: "grid-filled", label: "Grid Filled" },
+                { value: "grid-circle-filled", label: "Grid Circle Filled" },
+                { value: "grid-none", label: "Grid None" }
             ]
         case "radial":
             return [
