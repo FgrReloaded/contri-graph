@@ -43,7 +43,7 @@ export default function CustomizationPanel() {
                     </div>
                 </div>
 
-                {mode === "chart" && (
+                {mode === "chart" && chartType !== "line" && chartType !== "area" && (
                     <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground">Chart Variant</Label>
                         <Select 
@@ -168,10 +168,7 @@ function getChartVariants(chartType: string) {
             ]
         case "area":
             return [
-                { value: "default", label: "Default" },
-                { value: "stacked", label: "Stacked" },
-                { value: "gradient", label: "Gradient" },
-                { value: "smooth", label: "Smooth" }
+                { value: "default", label: "Default" }
             ]
         case "line":
             return [
