@@ -6,7 +6,7 @@ export type GraphViewMode = "grid" | "grid-3d" | "chart";
 export type ChartType = "bar" | "area" | "line" | "pie" | "radar" | "radial";
 
 export type PieChartVariant = "default" | "stacked" | "interactive" | "donut";
-export type BarChartVariant = "default" | "stacked" | "grouped" | "horizontal";
+export type BarChartVariant = "default" | "horizontal" | "label" | "month-labelled";
 export type AreaChartVariant = "default" | "stacked" | "gradient" | "smooth";
 export type LineChartVariant = "default" | "smooth" | "stepped" | "dashed";
 export type RadarChartVariant = "default" | "lines-only" | "grid-filled" | "grid-circle-filled" | "grid-none";

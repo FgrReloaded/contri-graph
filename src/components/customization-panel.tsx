@@ -162,9 +162,9 @@ function getChartVariants(chartType: string) {
         case "bar":
             return [
                 { value: "default", label: "Default" },
-                { value: "stacked", label: "Stacked" },
-                { value: "grouped", label: "Grouped" },
-                { value: "horizontal", label: "Horizontal" }
+                { value: "horizontal", label: "Horizontal" },
+                { value: "label", label: "Label" },
+                { value: "month-labelled", label: "Month Labelled" }
             ]
         case "area":
             return [
@@ -175,10 +175,7 @@ function getChartVariants(chartType: string) {
             ]
         case "line":
             return [
-                { value: "default", label: "Default" },
-                { value: "smooth", label: "Smooth" },
-                { value: "stepped", label: "Stepped" },
-                { value: "dashed", label: "Dashed" }
+                { value: "default", label: "Default" }
             ]
         case "radar":
             return [

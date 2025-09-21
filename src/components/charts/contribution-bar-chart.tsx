@@ -9,7 +9,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts";
 import { useGraphAppearanceStore } from "@/store/graph-appearance";
 import { useGraphViewStore, type BarChartVariant } from "@/store/graph-view";
 
@@ -37,22 +37,14 @@ export function ContributionBarChart({ contributions }: ContributionBarChartProp
     })
   }, [contributions])
 
-  const stackedData = useMemo(() => {
-    return monthlyData.map((item, i) => ({
-      ...item,
-      desktop: Math.floor(item.value * 0.6),
-      mobile: Math.floor(item.value * 0.4),
-    }))
-  }, [monthlyData])
 
   const chartConfig = useMemo(() => {
     const config: any = {
       value: { label: "Contributions", color: baseHex },
     }
     
-    if (barVariant === "stacked" || barVariant === "grouped") {
-      config.desktop = { label: "Desktop", color: baseHex }
-      config.mobile = { label: "Mobile", color: `${baseHex}80` }
+    if (barVariant === "month-labelled") {
+      config.label = { color: "var(--background)" }
     }
     
     return config
@@ -60,89 +52,109 @@ export function ContributionBarChart({ contributions }: ContributionBarChartProp
 
   const renderBarChart = () => {
     switch (barVariant) {
-      case "stacked":
-        return (
-          <BarChart accessibilityLayer data={stackedData} margin={{ left: 12, right: 12 }}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(v) => v as string}
-            />
-            <YAxis tickLine={false} axisLine={false} width={40} />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  className="w-[150px]"
-                  nameKey="value"
-                  labelFormatter={(value) => String(value)}
-                />
-              }
-            />
-            <ChartLegend content={<ChartLegendContent />} />
-            <Bar dataKey="desktop" stackId="a" fill={`var(--color-desktop)`} radius={[0, 0, 4, 4]} />
-            <Bar dataKey="mobile" stackId="a" fill={`var(--color-mobile)`} radius={[4, 4, 0, 0]} />
-          </BarChart>
-        )
-
-      case "grouped":
-        return (
-          <BarChart accessibilityLayer data={stackedData} margin={{ left: 12, right: 12 }}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(v) => v as string}
-            />
-            <YAxis tickLine={false} axisLine={false} width={40} />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  className="w-[150px]"
-                  nameKey="value"
-                  labelFormatter={(value) => String(value)}
-                />
-              }
-            />
-            <ChartLegend content={<ChartLegendContent />} />
-            <Bar dataKey="desktop" fill={`var(--color-desktop)`} radius={4} />
-            <Bar dataKey="mobile" fill={`var(--color-mobile)`} radius={4} />
-          </BarChart>
-        )
 
       case "horizontal":
         return (
-          <BarChart accessibilityLayer data={monthlyData} layout="horizontal" margin={{ left: 12, right: 12 }}>
-            <CartesianGrid horizontal={false} />
-            <XAxis type="number" tickLine={false} axisLine={false} width={40} />
+          <BarChart accessibilityLayer data={monthlyData} layout="vertical" margin={{ left: -20 }}>
+            <XAxis type="number" dataKey="value" hide />
             <YAxis
               dataKey="month"
               type="category"
               tickLine={false}
+              tickMargin={10}
               axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(v) => v as string}
+              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  className="w-[150px]"
-                  nameKey="value"
-                  labelFormatter={(value) => String(value)}
-                />
-              }
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
             />
-            <ChartLegend content={<ChartLegendContent />} />
-            <Bar dataKey="value" fill={`var(--color-value)`} radius={4} />
+            <Bar dataKey="value" fill={`var(--color-value)`} radius={5} />
           </BarChart>
         )
+
+      case "label":
+        return (
+          <BarChart
+            accessibilityLayer
+            data={monthlyData}
+            margin={{
+              top: 20,
+            }}
+          >
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              tickFormatter={(value) => value.slice(0, 3)}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Bar dataKey="value" fill={`var(--color-value)`} radius={8}>
+              <LabelList
+                position="top"
+                offset={12}
+                className="fill-foreground"
+                fontSize={12}
+              />
+            </Bar>
+          </BarChart>
+        )
+
+      case "month-labelled":
+        return (
+          <BarChart
+            accessibilityLayer
+            data={monthlyData}
+            layout="vertical"
+            margin={{
+              right: 16,
+            }}
+          >
+            <CartesianGrid horizontal={false} />
+            <YAxis
+              dataKey="month"
+              type="category"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              tickFormatter={(value) => value.slice(0, 3)}
+              hide
+            />
+            <XAxis dataKey="value" type="number" hide />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent indicator="line" />}
+            />
+            <Bar
+              dataKey="value"
+              layout="vertical"
+              fill={`var(--color-value)`}
+              radius={4}
+            >
+              <LabelList
+                dataKey="month"
+                position="insideLeft"
+                offset={8}
+                className="fill-(--color-label)"
+                fontSize={12}
+              />
+              <LabelList
+                dataKey="value"
+                position="right"
+                offset={8}
+                className="fill-foreground"
+                fontSize={12}
+              />
+            </Bar>
+          </BarChart>
+        )
+
+
 
       default:
         return (
