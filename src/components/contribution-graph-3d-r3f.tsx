@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { useMemo, useRef, useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
 import type { ContributionDay } from '@/types/contributions';
@@ -159,6 +159,7 @@ function ContributionGrid({
   }, [contributions]);
 
   const appearance = useGraphAppearanceStore((s) => s.appearance);
+  const sceneRef = useRef<THREE.Scene | null>(null);
   const size = Math.max(0.3, Math.min(1.0, appearance.size / 20));
   const gap = Math.max(0, Math.min(0.3, appearance.gap / 20));
 
@@ -206,6 +207,7 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<any>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
 
   const maxCount = useMemo(() => {
     let max = 0;
@@ -240,6 +242,15 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
     <div className="w-full overflow-hidden" style={{ width, height }}>
       <Canvas
         ref={canvasRef}
+        onCreated={({ gl, scene }) => {
+          rendererRef.current = gl;
+          sceneRef.current = scene;
+          if (appearance.background3DColor) {
+            scene.background = new THREE.Color(appearance.background3DColor);
+          } else {
+            scene.background = new THREE.Color('#0a0a0a');
+          }
+        }}
         camera={{ 
           position: [15, 12, 15], 
           fov: 45,
@@ -249,10 +260,8 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
         style={{ width: '100%', height: '100%' }}
         shadows
         gl={{ preserveDrawingBuffer: true }}
-        onCreated={({ gl }) => {
-          rendererRef.current = gl;
-        }}
       >
+        <BackgroundSync color={appearance.background3DColor} sceneRef={sceneRef} />
         <ambientLight intensity={0.3} />
         <directionalLight 
           position={[20, 20, 10]} 
@@ -316,3 +325,12 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
 ContributionGraph3DR3F.displayName = 'ContributionGraph3DR3F';
 
 export default ContributionGraph3DR3F;
+
+function BackgroundSync({ color, sceneRef }: { color?: string; sceneRef: React.MutableRefObject<THREE.Scene | null> }) {
+  useEffect(() => {
+    if (!sceneRef.current) return;
+    const next = new THREE.Color(color || '#0a0a0a');
+    sceneRef.current.background = next;
+  }, [color, sceneRef]);
+  return null;
+}

@@ -14,6 +14,7 @@ interface GraphAppearanceState {
   setGap: (value: number) => void;
   setShape: (value: GraphAppearance["shape"]) => void;
   setBase3DColor: (hex: string) => void;
+  setBackground3DColor: (hex: string) => void;
   setViewAngleDeg: (deg: number) => void;
   setTiltDeg: (deg: number) => void;
 }
@@ -48,6 +49,10 @@ export const useGraphAppearanceStore = create<GraphAppearanceState>((set) => ({
   setBase3DColor: (hex) =>
     set((state) => ({
       appearance: { ...state.appearance, base3DColor: hex },
+    })),
+  setBackground3DColor: (hex) =>
+    set((state) => ({
+      appearance: { ...state.appearance, background3DColor: hex },
     })),
   setViewAngleDeg: (deg) =>
     set((state) => ({

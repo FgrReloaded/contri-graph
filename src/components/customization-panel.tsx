@@ -9,6 +9,7 @@ import { useGraphViewStore } from "@/store/graph-view"
 export default function CustomizationPanel() {
     const value = useGraphAppearanceStore((s) => s.appearance)
     const setBaseColor = useGraphAppearanceStore((s) => s.setBaseColor)
+    const setBackground3DColor = useGraphAppearanceStore((s) => s.setBackground3DColor)
     const setMinOpacity = useGraphAppearanceStore((s) => s.setMinOpacity)
     const setMaxOpacity = useGraphAppearanceStore((s) => s.setMaxOpacity)
     const setSize = useGraphAppearanceStore((s) => s.setSize)
@@ -42,6 +43,27 @@ export default function CustomizationPanel() {
                         />
                     </div>
                 </div>
+
+                {mode === "grid-3d" && (
+                    <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">3D Background</Label>
+                        <div className="flex items-center gap-2">
+                            <Input
+                                type="color"
+                                className="h-8 w-8 rounded border bg-transparent p-0"
+                                value={value.background3DColor || "#000000"}
+                                onChange={(e) => setBackground3DColor(e.target.value)}
+                                aria-label="Pick 3D background color"
+                            />
+                            <Input
+                                type="text"
+                                value={value.background3DColor || "#000000"}
+                                onChange={(e) => setBackground3DColor(e.target.value)}
+                                className="h-8"
+                            />
+                        </div>
+                    </div>
+                )}
 
                 {mode === "chart" && chartType !== "line" && chartType !== "area" && (
                     <div className="space-y-1">

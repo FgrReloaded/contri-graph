@@ -38,7 +38,7 @@ export default function GraphSelector({ value, onSelect }: GraphSelectorProps) {
                 <button
                     type="button"
                     onClick={() => setMode('grid')}
-                    className={cn("w-1/2 h-full p-4 cursor-pointer", mode === 'grid' ? "bg-primary text-white" : "")}
+                    className={cn("w-1/2 h-full p-4 cursor-pointer", mode !== 'chart' ? "bg-primary text-white" : "")}
                 >
                     <h1>Graphs</h1>
                 </button>
