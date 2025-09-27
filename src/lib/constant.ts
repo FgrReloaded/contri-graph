@@ -21,4 +21,9 @@ export const PALETTES: Palette[] = [
     { key: 'grape', name: 'Grape', colors: ['#F8F0FC', '#E0C3FC', '#C084FC', '#A259F7', '#7209B7'] },
     { key: 'ice', name: 'Ice', colors: ['#F0FAFF', '#C2F0FC', '#8EE3EF', '#5BC0EB', '#20639B'] },
     { key: 'citrus', name: 'Citrus', colors: ['#FFFDE7', '#FFF9C4', '#FFF176', '#FFD600', '#FFAB00'] },
+    { key: 'neon-dream', name: 'Neon Dream', colors: ['#F9F871', '#A7FFEB', '#64FFDA', '#18FFFF', '#00B8D4'] },
+    { key: 'vaporwave', name: 'Vaporwave', colors: ['#FFB6B9', '#FAE3D9', '#BBDED6', '#8AC6D1', '#6A89CC'] },
+    { key: 'cyberpunk', name: 'Cyberpunk', colors: ['#FF0080', '#7928CA', '#2D2D2D', '#08F7FE', '#FCEE09'] },
+    { key: 'autumn-haze', name: 'Autumn Haze', colors: ['#FFF3E0', '#FFD8B5', '#FFB385', '#FF924C', '#FF5E13'] },
+    { key: 'deep-space', name: 'Deep Space', colors: ['#0B0033', '#370031', '#832161', '#DA4167', '#F0E7D8'] },
 ];
