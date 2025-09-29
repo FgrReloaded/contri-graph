@@ -221,16 +221,21 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
 
   const cameraPosition = useMemo(() => {
     const distance = 20;
-    const { cameraAngleX, cameraAngleY } = appearance;
+    const { cameraAngleX, cameraAngleY, cameraAngleZ } = appearance;
 
-    const x = distance * Math.cos((cameraAngleY * Math.PI) / 180) * Math.cos((cameraAngleX * Math.PI) / 180);
-    const y = distance * Math.sin((cameraAngleX * Math.PI) / 180);
-    const z = distance * Math.sin((cameraAngleY * Math.PI) / 180) * Math.cos((cameraAngleX * Math.PI) / 180);
+    const angleX = (cameraAngleX * Math.PI) / 180;
+    const angleY = (cameraAngleY * Math.PI) / 180;
+    const angleZ = (cameraAngleZ * Math.PI) / 180;
 
-    return [x, y, z] as [number, number, number];
-  }, [appearance]);
+    const x = distance * Math.cos(angleY) * Math.cos(angleX);
+    const y = distance * Math.sin(angleX);
+    const z = distance * Math.sin(angleY) * Math.cos(angleX);
 
-  const maxCount = useMemo(() => {
+    const xRotated = x * Math.cos(angleZ) - y * Math.sin(angleZ);
+    const yRotated = x * Math.sin(angleZ) + y * Math.cos(angleZ);
+
+    return [xRotated, yRotated, z] as [number, number, number];
+  }, [appearance]); const maxCount = useMemo(() => {
     let max = 0;
     for (const d of contributions) {
       if (d.count > max) max = d.count;
