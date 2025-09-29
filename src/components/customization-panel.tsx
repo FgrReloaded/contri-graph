@@ -9,12 +9,15 @@ import { useGraphViewStore } from "@/store/graph-view"
 export default function CustomizationPanel() {
     const value = useGraphAppearanceStore((s) => s.appearance)
     const setBaseColor = useGraphAppearanceStore((s) => s.setBaseColor)
-    const setBackground3DColor = useGraphAppearanceStore((s) => s.setBackground3DColor)
     const setMinOpacity = useGraphAppearanceStore((s) => s.setMinOpacity)
     const setMaxOpacity = useGraphAppearanceStore((s) => s.setMaxOpacity)
     const setSize = useGraphAppearanceStore((s) => s.setSize)
     const setGap = useGraphAppearanceStore((s) => s.setGap)
     const setShape = useGraphAppearanceStore((s) => s.setShape)
+    const setCameraAngleX = useGraphAppearanceStore((s) => s.setCameraAngleX)
+    const setCameraAngleY = useGraphAppearanceStore((s) => s.setCameraAngleY)
+    const setCameraAngleZ = useGraphAppearanceStore((s) => s.setCameraAngleZ)
+    const setCameraAngles = useGraphAppearanceStore((s) => s.setCameraAngles)
     const mode = useGraphViewStore((s) => s.mode)
     const chartType = useGraphViewStore((s) => s.chartType)
     const chartVariant = useGraphViewStore((s) => s.chartVariant)
@@ -43,33 +46,11 @@ export default function CustomizationPanel() {
                         />
                     </div>
                 </div>
-
-                {mode === "grid-3d" && (
-                    <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">3D Background</Label>
-                        <div className="flex items-center gap-2">
-                            <Input
-                                type="color"
-                                className="h-8 w-8 rounded border bg-transparent p-0"
-                                value={value.background3DColor || "#000000"}
-                                onChange={(e) => setBackground3DColor(e.target.value)}
-                                aria-label="Pick 3D background color"
-                            />
-                            <Input
-                                type="text"
-                                value={value.background3DColor || "#000000"}
-                                onChange={(e) => setBackground3DColor(e.target.value)}
-                                className="h-8"
-                            />
-                        </div>
-                    </div>
-                )}
-
                 {mode === "chart" && chartType !== "line" && chartType !== "area" && (
                     <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground">Chart Variant</Label>
-                        <Select 
-                            value={chartVariant.type === chartType ? chartVariant.variant : "default"} 
+                        <Select
+                            value={chartVariant.type === chartType ? chartVariant.variant : "default"}
                             onValueChange={(variant) => {
                                 setChartVariant({ type: chartType, variant: variant as any })
                             }}
@@ -129,7 +110,7 @@ export default function CustomizationPanel() {
                                 value={value.size}
                                 onChange={(e) => setSize(clamp(parseInt(e.target.value || '0'), 4, 28))}
                                 className="h-8"
-                            />  
+                            />
                         </div>
 
                         <div className="space-y-1">
@@ -159,6 +140,154 @@ export default function CustomizationPanel() {
                                     <SelectItem value="hexagon">Hexagon</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                    </>
+                )}
+
+                {mode === "grid-3d" && (
+                    <>
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Opacity range</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] text-muted-foreground">Min</span>
+                                    <Input
+                                        type="number"
+                                        step={0.05}
+                                        min={0}
+                                        max={1}
+                                        value={value.minOpacity}
+                                        onChange={(e) => setMinOpacity(clamp(parseFloat(e.target.value), 0, 1))}
+                                        className="h-8"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] text-muted-foreground">Max</span>
+                                    <Input
+                                        type="number"
+                                        step={0.05}
+                                        min={0}
+                                        max={1}
+                                        value={value.maxOpacity}
+                                        onChange={(e) => setMaxOpacity(clamp(parseFloat(e.target.value), 0, 1))}
+                                        className="h-8"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Size</Label>
+                            <Input
+                                type="number"
+                                min={4}
+                                max={28}
+                                value={value.size}
+                                onChange={(e) => setSize(clamp(parseInt(e.target.value || '0'), 4, 28))}
+                                className="h-8"
+                            />
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Gap</Label>
+                            <Input
+                                type="number"
+                                min={0}
+                                max={12}
+                                value={value.gap}
+                                onChange={(e) => setGap(clamp(parseInt(e.target.value || '0'), 0, 12))}
+                                className="h-8"
+                            />
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Camera Angles</Label>
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] text-muted-foreground w-8">X:</span>
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        max={360}
+                                        value={value.cameraAngleX}
+                                        onChange={(e) => setCameraAngleX(clamp(parseInt(e.target.value || '0'), 0, 360))}
+                                        className="h-8"
+                                    />
+                                    <span className="text-[11px] text-muted-foreground">°</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] text-muted-foreground w-8">Y:</span>
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        max={360}
+                                        value={value.cameraAngleY}
+                                        onChange={(e) => setCameraAngleY(clamp(parseInt(e.target.value || '0'), 0, 360))}
+                                        className="h-8"
+                                    />
+                                    <span className="text-[11px] text-muted-foreground">°</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] text-muted-foreground w-8">Z:</span>
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        max={360}
+                                        value={value.cameraAngleZ}
+                                        onChange={(e) => setCameraAngleZ(clamp(parseInt(e.target.value || '0'), 0, 360))}
+                                        className="h-8"
+                                    />
+                                    <span className="text-[11px] text-muted-foreground">°</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Angle Presets</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setCameraAngles(45, 45, 45)}
+                                    className="px-3 py-1 text-xs border rounded hover:bg-accent transition-colors"
+                                >
+                                    Default (45°)
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setCameraAngles(30, 60, 30)}
+                                    className="px-3 py-1 text-xs border rounded hover:bg-accent transition-colors"
+                                >
+                                    Perspective
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setCameraAngles(90, 0, 0)}
+                                    className="px-3 py-1 text-xs border rounded hover:bg-accent transition-colors"
+                                >
+                                    Top View
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setCameraAngles(0, 90, 0)}
+                                    className="px-3 py-1 text-xs border rounded hover:bg-accent transition-colors"
+                                >
+                                    Side View
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setCameraAngles(0, 45, 90)}
+                                    className="px-3 py-1 text-xs border rounded hover:bg-accent transition-colors"
+                                >
+                                    Isometric
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setCameraAngles(60, 30, 60)}
+                                    className="px-3 py-1 text-xs border rounded hover:bg-accent transition-colors"
+                                >
+                                    Tilted
+                                </button>
+                            </div>
                         </div>
                     </>
                 )}

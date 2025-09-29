@@ -14,9 +14,12 @@ interface GraphAppearanceState {
   setGap: (value: number) => void;
   setShape: (value: GraphAppearance["shape"]) => void;
   setBase3DColor: (hex: string) => void;
-  setBackground3DColor: (hex: string) => void;
   setViewAngleDeg: (deg: number) => void;
   setTiltDeg: (deg: number) => void;
+  setCameraAngleX: (angle: number) => void;
+  setCameraAngleY: (angle: number) => void;
+  setCameraAngleZ: (angle: number) => void;
+  setCameraAngles: (x: number, y: number, z: number) => void;
 }
 
 export const useGraphAppearanceStore = create<GraphAppearanceState>((set) => ({
@@ -50,10 +53,6 @@ export const useGraphAppearanceStore = create<GraphAppearanceState>((set) => ({
     set((state) => ({
       appearance: { ...state.appearance, base3DColor: hex },
     })),
-  setBackground3DColor: (hex) =>
-    set((state) => ({
-      appearance: { ...state.appearance, background3DColor: hex },
-    })),
   setViewAngleDeg: (deg) =>
     set((state) => ({
       appearance: { ...state.appearance, viewAngleDeg: deg },
@@ -61,5 +60,21 @@ export const useGraphAppearanceStore = create<GraphAppearanceState>((set) => ({
   setTiltDeg: (deg) =>
     set((state) => ({
       appearance: { ...state.appearance, tiltDeg: deg },
+    })),
+  setCameraAngleX: (angle) =>
+    set((state) => ({
+      appearance: { ...state.appearance, cameraAngleX: angle },
+    })),
+  setCameraAngleY: (angle) =>
+    set((state) => ({
+      appearance: { ...state.appearance, cameraAngleY: angle },
+    })),
+  setCameraAngleZ: (angle) =>
+    set((state) => ({
+      appearance: { ...state.appearance, cameraAngleZ: angle },
+    })),
+  setCameraAngles: (x, y, z) =>
+    set((state) => ({
+      appearance: { ...state.appearance, cameraAngleX: x, cameraAngleY: y, cameraAngleZ: z },
     })),
 }));

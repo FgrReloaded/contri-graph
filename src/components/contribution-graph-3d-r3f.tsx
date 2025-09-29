@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useRef, useState, useImperativeHandle, forwardRef, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useMemo, useRef, useState, useImperativeHandle, forwardRef, useCallback, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
 import type { ContributionDay } from '@/types/contributions';
 import { useGraphAppearanceStore } from '@/store/graph-appearance';
@@ -24,31 +24,31 @@ interface CubeProps {
   onHover?: (day: ContributionDay | null, position: { x: number; y: number }) => void;
 }
 
-function ContributionCube({ 
-  position, 
-  contribution, 
-  size, 
-  maxCount, 
-  baseColor, 
-  minOpacity, 
+function ContributionCube({
+  position,
+  contribution,
+  size,
+  maxCount,
+  baseColor,
+  minOpacity,
   maxOpacity,
-  onHover 
+  onHover
 }: CubeProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
   const height = contribution.count > 0 ? Math.max(0.1, (contribution.count / maxCount) * 3) : 0.1;
-  
+
   const intensity = Math.max(0, Math.min(4, contribution.intensity));
   const stops = [0, 1, 2, 3, 4].map((i) => minOpacity + (i * (maxOpacity - minOpacity)) / 4);
   const alpha = stops[intensity];
-  
+
   const r = parseInt(baseColor.slice(1, 3), 16);
   const g = parseInt(baseColor.slice(3, 5), 16);
   const b = parseInt(baseColor.slice(5, 7), 16);
-  
+
   const color = new THREE.Color(r / 255, g / 255, b / 255);
-  color.multiplyScalar(alpha + (1 - alpha) * 0.1); 
+  color.multiplyScalar(alpha + (1 - alpha) * 0.1);
 
   useFrame((state) => {
     if (meshRef.current) {
@@ -57,7 +57,7 @@ function ContributionCube({
         hovered ? height * 1.2 : height,
         0.1
       );
-      
+
       if (hovered) {
         meshRef.current.rotation.y += 0.02;
       } else {
@@ -93,24 +93,24 @@ function ContributionCube({
         receiveShadow
       >
         <boxGeometry args={[1, 1, 1]} />
-        <meshPhongMaterial 
-          color={color} 
-          transparent 
+        <meshPhongMaterial
+          color={color}
+          transparent
           opacity={0.9}
           emissive={hovered ? new THREE.Color(0x222222) : new THREE.Color(0x000000)}
           shininess={hovered ? 100 : 30}
         />
       </mesh>
-      
+
       {contribution.count > maxCount * 0.7 && (
         <mesh
           position={[position[0], height / 2, position[2]]}
           scale={[size * 1.1, height * 1.1, size * 1.1]}
         >
           <boxGeometry args={[1, 1, 1]} />
-          <meshBasicMaterial 
-            color={color} 
-            transparent 
+          <meshBasicMaterial
+            color={color}
+            transparent
             opacity={0.1}
           />
         </mesh>
@@ -119,13 +119,13 @@ function ContributionCube({
   );
 }
 
-function ContributionGrid({ 
-  contributions, 
-  maxCount, 
-  baseColor, 
-  minOpacity, 
+function ContributionGrid({
+  contributions,
+  maxCount,
+  baseColor,
+  minOpacity,
   maxOpacity,
-  onHover 
+  onHover
 }: {
   contributions: ContributionDay[];
   maxCount: number;
@@ -159,7 +159,6 @@ function ContributionGrid({
   }, [contributions]);
 
   const appearance = useGraphAppearanceStore((s) => s.appearance);
-  const sceneRef = useRef<THREE.Scene | null>(null);
   const size = Math.max(0.3, Math.min(1.0, appearance.size / 20));
   const gap = Math.max(0, Math.min(0.3, appearance.gap / 20));
 
@@ -174,14 +173,14 @@ function ContributionGrid({
 
   return (
     <group position={[-gridCenter[0], -gridCenter[1], -gridCenter[2]]}>
-      {weeks.map((week, weekIndex) => 
+      {weeks.map((week, weekIndex) =>
         week.map((day, dayIndex) => {
           if (!day.date) return null;
           const x = weekIndex * (size + gap);
           const z = dayIndex * (size + gap);
           return (
             <ContributionCube
-              key={`${weekIndex}-${dayIndex}`}
+              key={day.date || `empty-${weekIndex}-${dayIndex}`}
               position={[x, 0, z]}
               contribution={day}
               size={size}
@@ -198,16 +197,38 @@ function ContributionGrid({
   );
 }
 
-const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }, ContributionGraph3DR3FProps>(({ 
-  contributions, 
-  width = 800, 
-  height = 416 
+function CameraController({ position }: { position: [number, number, number] }) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    camera.position.set(...position);
+    camera.lookAt(0, 0, 0);
+  }, [camera, position]);
+
+  return null;
+}
+
+const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }, ContributionGraph3DR3FProps>(({
+  contributions,
+  width = 800,
+  height = 416
 }, ref) => {
   const appearance = useGraphAppearanceStore((s) => s.appearance);
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<any>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
+
+  const cameraPosition = useMemo(() => {
+    const distance = 20;
+    const { cameraAngleX, cameraAngleY } = appearance;
+
+    const x = distance * Math.cos((cameraAngleY * Math.PI) / 180) * Math.cos((cameraAngleX * Math.PI) / 180);
+    const y = distance * Math.sin((cameraAngleX * Math.PI) / 180);
+    const z = distance * Math.sin((cameraAngleY * Math.PI) / 180) * Math.cos((cameraAngleX * Math.PI) / 180);
+
+    return [x, y, z] as [number, number, number];
+  }, [appearance]);
 
   const maxCount = useMemo(() => {
     let max = 0;
@@ -217,11 +238,11 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
     return max || 1;
   }, [contributions]);
 
-  const handleHover = (day: ContributionDay | null, position: { x: number; y: number }) => {
+  const handleHover = (day: ContributionDay | null) => {
     setHoveredDay(day);
   };
 
-  const captureCanvas = () => {
+  const captureCanvas = useCallback(() => {
     if (rendererRef.current) {
       try {
         rendererRef.current.render();
@@ -232,39 +253,36 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
       }
     }
     return null;
-  };
+  }, []);
 
   useImperativeHandle(ref, () => ({
     captureCanvas
-  }), []);
+  }), [captureCanvas]);
 
   return (
-    <div className="w-full overflow-hidden" style={{ width, height }}>
+    <div className="w-full overflow-hidden mx-auto" style={{ width, height }}>
       <Canvas
         ref={canvasRef}
         onCreated={({ gl, scene }) => {
           rendererRef.current = gl;
           sceneRef.current = scene;
-          if (appearance.background3DColor) {
-            scene.background = new THREE.Color(appearance.background3DColor);
-          } else {
-            scene.background = new THREE.Color('#0a0a0a');
-          }
+          scene.background = null;
+
         }}
-        camera={{ 
-          position: [15, 12, 15], 
+        camera={{
+          position: cameraPosition,
           fov: 45,
           near: 0.1,
           far: 1000
         }}
         style={{ width: '100%', height: '100%' }}
         shadows
-        gl={{ preserveDrawingBuffer: true }}
+        gl={{ preserveDrawingBuffer: true, alpha: true }}
       >
-        <BackgroundSync color={appearance.background3DColor} sceneRef={sceneRef} />
+        <CameraController position={cameraPosition} />
         <ambientLight intensity={0.3} />
-        <directionalLight 
-          position={[20, 20, 10]} 
+        <directionalLight
+          position={[20, 20, 10]}
           intensity={1.2}
           castShadow
           shadow-mapSize-width={4096}
@@ -325,12 +343,3 @@ const ContributionGraph3DR3F = forwardRef<{ captureCanvas: () => string | null }
 ContributionGraph3DR3F.displayName = 'ContributionGraph3DR3F';
 
 export default ContributionGraph3DR3F;
-
-function BackgroundSync({ color, sceneRef }: { color?: string; sceneRef: React.MutableRefObject<THREE.Scene | null> }) {
-  useEffect(() => {
-    if (!sceneRef.current) return;
-    const next = new THREE.Color(color || '#0a0a0a');
-    sceneRef.current.background = next;
-  }, [color, sceneRef]);
-  return null;
-}
