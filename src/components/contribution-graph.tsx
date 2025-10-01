@@ -9,6 +9,8 @@ import { useGraphAppearanceStore } from '@/store/graph-appearance';
 import { Button } from './ui/button';
 import { useGraphViewStore } from '@/store/graph-view';
 import { useContributionChart } from './providers/contribution-chart-provider';
+import { computeFirstAndMostActive, computeLongestStreak } from '@/lib/metrics';
+import { useStatsVisibilityStore } from '@/store/stats-visibility';
 import dynamic from 'next/dynamic';
 
 interface ContributionGraphProps {
@@ -17,7 +19,6 @@ interface ContributionGraphProps {
   onYearChange?: (year: string) => void;
   user?: { id: string; avatar_url: string; name: string | null } | null;
   exportRef?: Ref<HTMLDivElement>;
-  showTotal?: boolean;
   on3DRefReady?: (ref: { captureCanvas: () => string | null } | null) => void;
 }
 
@@ -32,7 +33,6 @@ export function ContributionGraph({
   onYearChange,
   user,
   exportRef,
-  showTotal = true,
   on3DRefReady,
 }: ContributionGraphProps) {
   const [hoveredDay, setHoveredDay] = useState<ContributionDay | null>(null);
@@ -144,6 +144,14 @@ export function ContributionGraph({
     return summary?.total ?? null;
   }, [data.years, selectedYear]);
 
+  const { showStreaks, showFirstMost, showTotal } = useStatsVisibilityStore();
+
+  const metrics = useMemo(() => {
+    const streak = computeLongestStreak(currentYearContributions);
+    const { firstDay, mostActiveDay } = computeFirstAndMostActive(currentYearContributions);
+    return { streak, firstDay, mostActiveDay };
+  }, [currentYearContributions]);
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4 p-1 gap-2 flex-wrap">
@@ -166,97 +174,124 @@ export function ContributionGraph({
         )}
       </div>
       {mode === 'chart' ? (
-        <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
+        <div ref={exportRef ?? undefined} className="relative pb-6" data-export="contribution-graph">
           <div className="px-1 pt-1 flex items-center justify-between">
             <div>
               {user && (
                 <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
               )}
             </div>
-            {showTotal && yearTotal !== null && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
-            )}
+            <div className="flex items-center gap-3 flex-wrap justify-end">
+              {showTotal && yearTotal !== null && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
+              )}
+              {showStreaks && metrics.streak.length > 0 && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">Longest streak: {metrics.streak.length}d</span>
+              )}
+              {showFirstMost && metrics.mostActiveDay && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">Most active: {metrics.mostActiveDay.count} on {metrics.mostActiveDay.date ? new Date(metrics.mostActiveDay.date).toDateString() : "-"}</span>
+              )}
+
+            </div>
           </div>
           <ChartComponent contributions={currentYearContributions} />
         </div>
       ) : mode === 'grid-3d' ? (
-        <div ref={exportRef as any} className="relative pb-6" data-export="contribution-graph">
+        <div ref={exportRef ?? undefined} className="relative pb-6" data-export="contribution-graph">
           <div className="px-1 pt-1 flex items-center justify-between">
             <div>
               {user && (
                 <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
               )}
             </div>
-            {showTotal && yearTotal !== null && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
-            )}
+            <div className="flex items-center gap-3 flex-wrap justify-end">
+              {showTotal && yearTotal !== null && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
+              )}
+              {showStreaks && metrics.streak.length > 0 && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">Longest streak: {metrics.streak.length}d</span>
+              )}
+              {showFirstMost && metrics.mostActiveDay && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">Most active: {metrics.mostActiveDay.count} on {metrics.mostActiveDay.date ? new Date(metrics.mostActiveDay.date).toDateString() : "-"}</span>
+              )}
+
+            </div>
           </div>
           <ContributionGraph3D ref={graph3DRef} contributions={currentYearContributions} />
         </div>
       ) : (
-      <div ref={exportRef as any} className="relative min-w-fit pb-6" data-export="contribution-graph">
-        <div className="px-1 pt-1 flex items-center justify-between">
-          <div>
-            {user && (
-              <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
-            )}
+        <div ref={exportRef ?? undefined} className="relative min-w-fit pb-6" data-export="contribution-graph">
+          <div className="px-1 pt-1 flex items-center justify-between">
+            <div>
+              {user && (
+                <UserBadge avatarUrl={user.avatar_url} name={user.name} id={user.id} />
+              )}
+            </div>
+            <div className="flex items-center gap-3 flex-wrap justify-end">
+              {showTotal && yearTotal !== null && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
+              )}
+              {showStreaks && metrics.streak.length > 0 && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">Longest streak: {metrics.streak.length}d</span>
+              )}
+              {showFirstMost && metrics.mostActiveDay && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">Most active: {metrics.mostActiveDay.count} on {metrics.mostActiveDay.date ? new Date(metrics.mostActiveDay.date).toDateString() : "-"}</span>
+              )}
+
+            </div>
           </div>
-          {showTotal && yearTotal !== null && (
-            <span className="text-sm text-gray-600 dark:text-gray-400">{yearTotal} contributions</span>
+          <div className="flex mb-2 overflow-x-auto">
+            <div className="flex-1 grid grid-cols-12 gap-0 min-w-[600px]">
+              {MONTHS.map((month) => (
+                <div key={month} className="text-[11px] text-gray-600/80 text-center select-none">
+                  {month}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-center overflow-x-auto">
+            <div className="flex min-w-fit" style={{ gap }}>
+              {weeks.map((week, weekIndex) => {
+                const firstDayOfWeek = week.find(d => d.date)?.date || `week-${weekIndex}`;
+                return (
+                  <div key={firstDayOfWeek} className="flex flex-col" style={{ gap }}>
+                    {week.map((day, dayIndex) => (
+                      <Button
+                        key={day.date || `empty-${weekIndex}-${dayIndex}`}
+                        type="button"
+                        className="border-0 p-0 focus:outline-none focus:ring-2 focus:ring-teal-400/60 hover:brightness-110"
+                        style={{ ...dotStyleBase, backgroundColor: getColor(day) }}
+                        onMouseEnter={(e) => {
+                          if (day.date) {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const containerRect = e.currentTarget.closest('.relative')?.getBoundingClientRect();
+                            if (containerRect) {
+                              setMousePosition({ x: rect.left - containerRect.left + rect.width / 2, y: rect.top - containerRect.top });
+                            }
+                            setHoveredDay(day);
+                          }
+                        }}
+                        onMouseLeave={() => setHoveredDay(null)}
+                        disabled={!day.date}
+                        aria-label={day.date ? `${day.date} –` : 'empty'}
+                      />
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {hoveredDay && (
+            <div
+              className="absolute bg-gray-900/95 text-white text-xs px-2 py-1 rounded z-10 transform -translate-x-1/2 -translate-y-full whitespace-nowrap shadow-lg"
+              style={{ left: mousePosition.x, top: mousePosition.y - 6 }}
+            >
+              {new Date(hoveredDay.date).toDateString()}
+            </div>
           )}
         </div>
-        <div className="flex mb-2 overflow-x-auto">
-          <div className="flex-1 grid grid-cols-12 gap-0 min-w-[600px]">
-            {MONTHS.map((month) => (
-              <div key={month} className="text-[11px] text-gray-600/80 text-center select-none">
-                {month}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex justify-center overflow-x-auto">
-          <div className="flex min-w-fit" style={{ gap }}>
-            {weeks.map((week, weekIndex) => {
-              const firstDayOfWeek = week.find(d => d.date)?.date || `week-${weekIndex}`;
-              return (
-                <div key={firstDayOfWeek} className="flex flex-col" style={{ gap }}>
-                  {week.map((day, dayIndex) => (
-                    <Button
-                      key={day.date || `empty-${weekIndex}-${dayIndex}`}
-                      type="button"
-                      className="border-0 p-0 focus:outline-none focus:ring-2 focus:ring-teal-400/60 hover:brightness-110"
-                      style={{ ...dotStyleBase, backgroundColor: getColor(day) }}
-                      onMouseEnter={(e) => {
-                        if (day.date) {
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          const containerRect = e.currentTarget.closest('.relative')?.getBoundingClientRect();
-                          if (containerRect) {
-                            setMousePosition({ x: rect.left - containerRect.left + rect.width / 2, y: rect.top - containerRect.top });
-                          }
-                          setHoveredDay(day);
-                        }
-                      }}
-                      onMouseLeave={() => setHoveredDay(null)}
-                      disabled={!day.date}
-                      aria-label={day.date ? `${day.date} –` : 'empty'}
-                    />
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {hoveredDay && (
-          <div
-            className="absolute bg-gray-900/95 text-white text-xs px-2 py-1 rounded z-10 transform -translate-x-1/2 -translate-y-full whitespace-nowrap shadow-lg"
-            style={{ left: mousePosition.x, top: mousePosition.y - 6 }}
-          >
-            {new Date(hoveredDay.date).toDateString()}
-          </div>
-        )}
-      </div>
       )}
     </div>
   );

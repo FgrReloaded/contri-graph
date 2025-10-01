@@ -5,6 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "./ui/label"
 import { useGraphAppearanceStore } from "@/store/graph-appearance"
 import { useGraphViewStore } from "@/store/graph-view"
+import { useStatsVisibilityStore } from "@/store/stats-visibility"
+import { Switch } from "@/components/animate-ui/components/headless/switch"
 
 export default function CustomizationPanel() {
     const value = useGraphAppearanceStore((s) => s.appearance)
@@ -52,7 +54,7 @@ export default function CustomizationPanel() {
                         <Select
                             value={chartVariant.type === chartType ? chartVariant.variant : "default"}
                             onValueChange={(variant) => {
-                                setChartVariant({ type: chartType, variant: variant as any })
+                                setChartVariant({ type: chartType, variant: variant as unknown as never })
                             }}
                         >
                             <SelectTrigger size="sm" className="w-full">
@@ -127,7 +129,7 @@ export default function CustomizationPanel() {
 
                         <div className="space-y-1">
                             <Label className="text-xs text-muted-foreground">Shape</Label>
-                            <Select value={value.shape} onValueChange={(v) => setShape(v as any)}>
+                            <Select value={value.shape} onValueChange={(v) => setShape(v as unknown as never)}>
                                 <SelectTrigger size="sm" className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
@@ -291,6 +293,38 @@ export default function CustomizationPanel() {
                         </div>
                     </>
                 )}
+
+                <div className="space-y-2 pt-2 border-t">
+                    <Label className="text-xs text-muted-foreground">Stats visibility</Label>
+                    <StatsToggles />
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function StatsToggles() {
+    const showStreaks = useStatsVisibilityStore((s) => s.showStreaks)
+    const showFirstMost = useStatsVisibilityStore((s) => s.showFirstMost)
+    const showTotal = useStatsVisibilityStore((s) => s.showTotal)
+
+    const setShowStreaks = useStatsVisibilityStore((s) => s.setShowStreaks)
+    const setShowFirstMost = useStatsVisibilityStore((s) => s.setShowFirstMost)
+    const setShowTotal = useStatsVisibilityStore((s) => s.setShowTotal)
+
+    return (
+        <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+                <span className="text-xs">Show longest streak</span>
+                <Switch checked={showStreaks} onChange={setShowStreaks} aria-label="Toggle longest streak" />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+                <span className="text-xs">Show most active day</span>
+                <Switch checked={showFirstMost} onChange={setShowFirstMost} aria-label="Toggle most active day" />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+                <span className="text-xs">Show total contributions</span>
+                <Switch checked={showTotal} onChange={setShowTotal} aria-label="Toggle total contributions" />
             </div>
         </div>
     )

@@ -37,8 +37,6 @@ export default function Main() {
     const [downloadOpen, setDownloadOpen] = useState(false);
     const [showPalettes, setShowPalettes] = useState(false);
     const [showCustomize, setShowCustomize] = useState(false);
-    const [showTotal, setShowTotal] = useState(true);
-
 
     async function fetchData(target: string) {
         if (!target) return;
@@ -96,28 +94,6 @@ export default function Main() {
                         <GraphTypeSelector />
                         <div className="p-2 border-b flex justify-between items-center gap-2">
                             <div className="flex items-center gap-4 ml-auto max-sm:justify-between max-sm:w-full">
-                                <Button
-                                    className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
-                                    variant={"ghost"}
-                                    size={"sm"}
-                                    onClick={() => setShowTotal((s) => !s)}
-                                >
-                                    {showTotal ? (
-                                        <>
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                                            </svg>
-                                            <span className="text-sm text-gray-700 dark:text-gray-400">Hide total</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M4 18h8" />
-                                            </svg>
-                                            <span className="text-sm text-gray-700 dark:text-gray-400">Show total</span>
-                                        </>
-                                    )}
-                                </Button>
                                 <div className="flex gap-2">
                                     {data && (
                                         <GraphDialog
@@ -132,7 +108,6 @@ export default function Main() {
                                                 </div>
                                             )}
                                             user={user}
-                                            showTotal={showTotal}
                                             data={data}
                                             selectedYear={selectedYear}
                                             onYearChange={setSelectedYear}
@@ -180,7 +155,6 @@ export default function Main() {
                                 onYearChange={setSelectedYear}
                                 user={user}
                                 exportRef={exportRef}
-                                showTotal={showTotal}
                                 on3DRefReady={(ref) => { graph3DRef.current = ref; }}
                             />
                         </ScrollArea>
@@ -203,38 +177,38 @@ export default function Main() {
                                 const tempCanvas = document.createElement('canvas');
                                 const tempCtx = tempCanvas.getContext('2d');
                                 if (!tempCtx) return;
-                                
+
                                 const scrollables = Array.from(exportRef.current.querySelectorAll<HTMLElement>(".overflow-x-auto"));
                                 const previousOverflow: string[] = [];
                                 scrollables.forEach((el) => {
                                     previousOverflow.push(el.style.overflowX);
                                     el.style.overflowX = "visible";
                                 });
-                                
+
                                 const canvasElement = exportRef.current.querySelector('canvas');
                                 let originalCanvasDisplay = '';
                                 if (canvasElement) {
                                     originalCanvasDisplay = (canvasElement as HTMLElement).style.display;
                                     (canvasElement as HTMLElement).style.display = 'none';
                                 }
-                                
+
                                 const domDataUrl = await toPng(exportRef.current, {
                                     cacheBust: true,
                                     pixelRatio: 2,
                                     backgroundColor: bg === "transparent" ? undefined : bg,
                                 });
-                                
+
                                 if (canvasElement) {
                                     (canvasElement as HTMLElement).style.display = originalCanvasDisplay;
                                 }
-                                
+
                                 scrollables.forEach((el, idx) => {
                                     el.style.overflowX = previousOverflow[idx] || "";
                                 });
-                                
+
                                 const domImg = new Image();
                                 const canvasImg = new Image();
-                                
+
                                 await new Promise<void>((resolve) => {
                                     let loadedCount = 0;
                                     const onLoad = () => {
@@ -246,23 +220,23 @@ export default function Main() {
                                     domImg.src = domDataUrl;
                                     canvasImg.src = canvasDataUrl;
                                 });
-                                
+
                                 tempCanvas.width = domImg.width;
                                 tempCanvas.height = domImg.height;
-                                
+
                                 if (canvasElement) {
                                     const rect = canvasElement.getBoundingClientRect();
                                     const containerRect = exportRef.current.getBoundingClientRect();
-                                    const x = (rect.left - containerRect.left) * 2; 
+                                    const x = (rect.left - containerRect.left) * 2;
                                     const y = (rect.top - containerRect.top) * 2;
                                     const width = rect.width * 2;
                                     const height = rect.height * 2;
-                                    
+
                                     tempCtx.drawImage(canvasImg, x, y, width, height);
                                 }
-                                
+
                                 tempCtx.drawImage(domImg, 0, 0);
-                                
+
                                 const link = document.createElement('a');
                                 link.download = `${user?.id || 'graph'}-${selectedYear || 'year'}.png`;
                                 link.href = tempCanvas.toDataURL('image/png');
@@ -270,7 +244,7 @@ export default function Main() {
                                 return;
                             }
                         }
-                        
+
                         const scrollables = Array.from(exportRef.current.querySelectorAll<HTMLElement>(".overflow-x-auto"));
                         const previousOverflow: string[] = [];
                         scrollables.forEach((el) => {

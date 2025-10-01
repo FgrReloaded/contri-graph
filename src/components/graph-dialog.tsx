@@ -42,7 +42,6 @@ export default function GraphDialog({
                         selectedYear={selectedYear}
                         onYearChange={onYearChange}
                         user={user}
-                        showTotal={showTotal}
                     />
                 </div>
                 <DialogFooter>
