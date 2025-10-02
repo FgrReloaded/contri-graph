@@ -6,7 +6,6 @@ import type { ContributionDay, AllYearsData, YearlySummary } from '@/types/contr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import UserBadge from '@/components/user-badge';
 import { useGraphAppearanceStore } from '@/store/graph-appearance';
-import { Button } from './ui/button';
 import { useGraphViewStore } from '@/store/graph-view';
 import { useContributionChart } from './providers/contribution-chart-provider';
 import { computeFirstAndMostActive, computeLongestStreak } from '@/lib/metrics';
@@ -119,17 +118,30 @@ export function ContributionGraph({
     return { borderRadius: 4 };
   }, [shape]);
 
-  const getColor = (day: ContributionDay | null) => {
-    if (!day || !day.date) return 'rgba(16, 185, 129, 0.08)';
-    const level = Math.max(0, Math.min(4, day.intensity));
-    const stops = [0, 1, 2, 3, 4].map((i) => minOpacity + (i * (maxOpacity - minOpacity)) / 4);
-    const alpha = stops[level];
-
+  const cssVariables = useMemo(() => {
     const r = parseInt(baseHex.slice(1, 3), 16);
     const g = parseInt(baseHex.slice(3, 5), 16);
     const b = parseInt(baseHex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  };
+
+    const stops = [0, 1, 2, 3, 4].map((i) => minOpacity + (i * (maxOpacity - minOpacity)) / 4);
+
+    return {
+      '--contrib-base-r': r,
+      '--contrib-base-g': g,
+      '--contrib-base-b': b,
+      '--contrib-level-0': stops[0],
+      '--contrib-level-1': stops[1],
+      '--contrib-level-2': stops[2],
+      '--contrib-level-3': stops[3],
+      '--contrib-level-4': stops[4],
+    } as CSSProperties;
+  }, [baseHex, minOpacity, maxOpacity]);
+
+  const getColorClass = useCallback((day: ContributionDay | null) => {
+    if (!day || !day.date) return 'contrib-empty';
+    const level = Math.max(0, Math.min(4, day.intensity));
+    return `contrib-level-${level}`;
+  }, []);
 
   const dotStyleBase: CSSProperties = { width: size, height: size, ...dotShapeStyle };
 
@@ -220,7 +232,15 @@ export function ContributionGraph({
           <ContributionGraph3D ref={graph3DRef} contributions={currentYearContributions} />
         </div>
       ) : (
-        <div ref={exportRef ?? undefined} className="relative min-w-fit pb-6" data-export="contribution-graph">
+        <div ref={exportRef ?? undefined} className="relative min-w-fit pb-6" data-export="contribution-graph" style={cssVariables}>
+          <style>{`
+            .contrib-empty { background-color: rgba(16, 185, 129, 0.08); }
+            .contrib-level-0 { background-color: rgba(var(--contrib-base-r), var(--contrib-base-g), var(--contrib-base-b), var(--contrib-level-0)); }
+            .contrib-level-1 { background-color: rgba(var(--contrib-base-r), var(--contrib-base-g), var(--contrib-base-b), var(--contrib-level-1)); }
+            .contrib-level-2 { background-color: rgba(var(--contrib-base-r), var(--contrib-base-g), var(--contrib-base-b), var(--contrib-level-2)); }
+            .contrib-level-3 { background-color: rgba(var(--contrib-base-r), var(--contrib-base-g), var(--contrib-base-b), var(--contrib-level-3)); }
+            .contrib-level-4 { background-color: rgba(var(--contrib-base-r), var(--contrib-base-g), var(--contrib-base-b), var(--contrib-level-4)); }
+          `}</style>
           <div className="px-1 pt-1 flex items-center justify-between">
             <div>
               {user && (
@@ -257,11 +277,11 @@ export function ContributionGraph({
                 return (
                   <div key={firstDayOfWeek} className="flex flex-col" style={{ gap }}>
                     {week.map((day, dayIndex) => (
-                      <Button
+                      <button
                         key={day.date || `empty-${weekIndex}-${dayIndex}`}
                         type="button"
-                        className="border-0 p-0 focus:outline-none focus:ring-2 focus:ring-teal-400/60 hover:brightness-110"
-                        style={{ ...dotStyleBase, backgroundColor: getColor(day) }}
+                        className={`border-0 p-0 focus:outline-none focus:ring-2 focus:ring-teal-400/60 hover:brightness-110 transition-transform hover:scale-110 ${getColorClass(day)}`}
+                        style={dotStyleBase}
                         onMouseEnter={(e) => {
                           if (day.date) {
                             const rect = e.currentTarget.getBoundingClientRect();

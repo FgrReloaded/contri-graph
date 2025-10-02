@@ -13,6 +13,7 @@ import CustomizationPanel from "@/components/customization-panel";
 import { useGraphAppearanceStore } from "@/store/graph-appearance";
 import GraphDialog from "@/components/graph-dialog";
 import DownloadDialog from "@/components/download-dialog";
+import ShareDialog from "@/components/share-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toPng } from "html-to-image";
 import { useTheme } from "next-themes";
@@ -35,6 +36,7 @@ export default function Main() {
     const exportRef = useRef<HTMLDivElement | null>(null);
     const graph3DRef = useRef<{ captureCanvas: () => string | null } | null>(null);
     const [downloadOpen, setDownloadOpen] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
     const [showPalettes, setShowPalettes] = useState(false);
     const [showCustomize, setShowCustomize] = useState(false);
 
@@ -101,6 +103,7 @@ export default function Main() {
                                             triggerContent={(
                                                 <div className="flex items-center gap-1">
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <title>Preview</title>
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
@@ -118,9 +121,22 @@ export default function Main() {
                                         className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
                                         variant={"ghost"}
                                         size={"sm"}
+                                        onClick={() => setShareOpen(true)}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <title>Share</title>
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                        </svg>
+                                        <span className="text-sm text-gray-700 dark:text-gray-400 max-sm:hidden">Share</span>
+                                    </Button>
+                                    <Button
+                                        className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
+                                        variant={"ghost"}
+                                        size={"sm"}
                                         onClick={() => setDownloadOpen(true)}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <title>Download</title>
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
                                         </svg>
                                         <span className="text-sm text-gray-700 dark:text-gray-400 max-sm:hidden">Download</span>
@@ -149,14 +165,16 @@ export default function Main() {
                             </div>
                         </div>
                         <ScrollArea className="p-6 pb-0 h-[60vh]">
-                            <ContributionGraph
-                                data={data!}
-                                selectedYear={selectedYear}
-                                onYearChange={setSelectedYear}
-                                user={user}
-                                exportRef={exportRef}
-                                on3DRefReady={(ref) => { graph3DRef.current = ref; }}
-                            />
+                            {data && (
+                                <ContributionGraph
+                                    data={data}
+                                    selectedYear={selectedYear}
+                                    onYearChange={setSelectedYear}
+                                    user={user}
+                                    exportRef={exportRef}
+                                    on3DRefReady={(ref) => { graph3DRef.current = ref; }}
+                                />
+                            )}
                         </ScrollArea>
                     </div>
                     <div className="hidden lg:block lg:w-1/5">
@@ -164,6 +182,25 @@ export default function Main() {
                     </div>
                 </div>
             </Conditional>
+            <ShareDialog
+                open={shareOpen}
+                onOpenChange={setShareOpen}
+                shareUrl={(() => {
+                    if (typeof window === "undefined" || !user?.id || !selectedYear) return "";
+                    const appearance = useGraphAppearanceStore.getState().appearance;
+                    const params = new URLSearchParams({
+                        username: user.id,
+                        year: selectedYear,
+                        baseColor: appearance.baseColor.replace("#", ""),
+                        size: appearance.size.toString(),
+                        gap: appearance.gap.toString(),
+                        shape: appearance.shape,
+                        minOpacity: appearance.minOpacity.toString(),
+                        maxOpacity: appearance.maxOpacity.toString(),
+                    });
+                    return `${window.location.origin}/api/share?${params.toString()}`;
+                })()}
+            />
             <DownloadDialog
                 open={downloadOpen}
                 onOpenChange={setDownloadOpen}
