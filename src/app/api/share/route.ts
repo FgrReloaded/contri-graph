@@ -40,8 +40,6 @@ function getWeeksInYear(items: ContributionDay[]): ContributionDay[][] {
 
 function generateGraphSVG(
   weeks: ContributionDay[][],
-  username: string,
-  year: string,
   totalContributions: number,
   config: {
     size: number;
@@ -82,33 +80,39 @@ function generateGraphSVG(
   };
 
   const monthLabelHeight = 20;
-  const graphStartY = monthLabelHeight + 10;
+  const headerHeight = 40;
+  const graphStartY = headerHeight + monthLabelHeight;
   const weekWidth = size;
   const dayHeight = size;
-  const graphWidth = weeks.length * (weekWidth + gap) + 40;
-  const graphHeight = (7 * dayHeight) + (6 * gap) + graphStartY + 80;
+  const leftPadding = 20;
+  const rightPadding = 20;
+  const bottomPadding = 10;
+
+  const graphContentWidth = weeks.length * (weekWidth + gap);
+  const graphWidth = graphContentWidth + leftPadding + rightPadding;
+  const graphContentHeight = (7 * dayHeight) + (6 * gap);
+  const graphHeight = graphContentHeight + graphStartY + bottomPadding;
 
   const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${graphWidth}" height="${graphHeight}" viewBox="0 0 ${graphWidth} ${graphHeight}" xmlns="http://www.w3.org/2000/svg" role="img">
   <style>
-    .header { font: 600 16px 'Segoe UI', Ubuntu, Sans-Serif; fill: #2f80ed; }
-    .stat { font: 400 12px 'Segoe UI', Ubuntu, Sans-Serif; fill: #586069; }
-    .month-label { font: 400 10px 'Segoe UI', Ubuntu, Sans-Serif; fill: #586069; }
+    .header { font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif; fill: #2f80ed; }
+    .stat { font: 400 14px 'Segoe UI', Ubuntu, Sans-Serif; fill: #586069; }
+    .month-label { font: 400 11px 'Segoe UI', Ubuntu, Sans-Serif; fill: #586069; }
   </style>
 
   <rect width="100%" height="100%" fill="#ffffff"/>
 
-  <text x="20" y="25" class="header">${username}'s Contributions in ${year}</text>
-  <text x="20" y="45" class="stat">${totalContributions} contributions</text>
+  <text x="${leftPadding}" y="30" class="stat">${totalContributions} contributions</text>
 
-  <g transform="translate(20, ${graphStartY})">
+  <g transform="translate(${leftPadding}, ${headerHeight + 10})">
     ${MONTHS.map((month, i) => {
-    const x = (i * graphWidth / 12) - 20;
+    const x = Math.floor((i * graphContentWidth) / 12);
     return `<text x="${x}" y="0" class="month-label">${month}</text>`;
   }).join('\n    ')}
   </g>
 
-  <g transform="translate(20, ${graphStartY + 20})">
+  <g transform="translate(${leftPadding}, ${graphStartY})">
     ${weeks.map((week, weekIndex) => {
     const weekX = weekIndex * (weekWidth + gap);
     return week.map((day, dayIndex) => {
@@ -155,7 +159,7 @@ export async function GET(request: NextRequest) {
     const totalContributions = yearContributions.reduce((sum, day) => sum + day.count, 0);
     const weeks = getWeeksInYear(yearContributions);
 
-    const svg = generateGraphSVG(weeks, username, year, totalContributions, {
+    const svg = generateGraphSVG(weeks, totalContributions, {
       size,
       gap,
       baseColor,

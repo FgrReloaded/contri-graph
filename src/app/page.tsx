@@ -11,6 +11,7 @@ import GraphTypeSelector from "@/components/graph-type-selector";
 import { Button } from "@/components/ui/button";
 import CustomizationPanel from "@/components/customization-panel";
 import { useGraphAppearanceStore } from "@/store/graph-appearance";
+import { useGraphViewStore } from "@/store/graph-view";
 import GraphDialog from "@/components/graph-dialog";
 import DownloadDialog from "@/components/download-dialog";
 import ShareDialog from "@/components/share-dialog";
@@ -32,6 +33,7 @@ export default function Main() {
     const [selectedYear, setSelectedYear] = useState<string>("");
     const [error, setError] = useState<string>("");
     const setBaseColor = useGraphAppearanceStore((s) => s.setBaseColor);
+    const mode = useGraphViewStore((s) => s.mode);
     const [user, setUser] = useState<GithubUser | null>(null);
     const exportRef = useRef<HTMLDivElement | null>(null);
     const graph3DRef = useRef<{ captureCanvas: () => string | null } | null>(null);
@@ -117,18 +119,20 @@ export default function Main() {
 
                                         />
                                     )}
-                                    <Button
-                                        className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
-                                        variant={"ghost"}
-                                        size={"sm"}
-                                        onClick={() => setShareOpen(true)}
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <title>Share</title>
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                        </svg>
-                                        <span className="text-sm text-gray-700 dark:text-gray-400 max-sm:hidden">Share</span>
-                                    </Button>
+                                    {mode === "grid" && (
+                                        <Button
+                                            className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
+                                            variant={"ghost"}
+                                            size={"sm"}
+                                            onClick={() => setShareOpen(true)}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <title>Share</title>
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                            </svg>
+                                            <span className="text-sm text-gray-700 dark:text-gray-400 max-sm:hidden">Share</span>
+                                        </Button>
+                                    )}
                                     <Button
                                         className="flex items-center gap-1 px-2 py-1 rounded hover:bg-accent transition cursor-pointer"
                                         variant={"ghost"}
