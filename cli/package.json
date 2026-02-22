@@ -1,0 +1,27 @@
+{
+  "name": "contri-graph",
+  "version": "1.0.0",
+  "description": "Show your GitHub contribution graph in the terminal",
+  "bin": {
+    "contri-graph": "./bin/contri-graph.js"
+  },
+  "keywords": [
+    "github",
+    "contributions",
+    "terminal",
+    "cli",
+    "graph"
+  ],
+  "author": "FgrReloaded",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FgrReloaded/contri-graph"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bin/"
+  ]
+}
