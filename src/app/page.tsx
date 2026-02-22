@@ -202,21 +202,6 @@ export default function Main() {
                         minOpacity: appearance.minOpacity.toString(),
                         maxOpacity: appearance.maxOpacity.toString(),
                     });
-                    return `${window.location.origin}/share?${params.toString()}`;
-                })()}
-                imageUrl={(() => {
-                    if (typeof window === "undefined" || !user?.id || !selectedYear) return "";
-                    const appearance = useGraphAppearanceStore.getState().appearance;
-                    const params = new URLSearchParams({
-                        username: user.id,
-                        year: selectedYear,
-                        baseColor: appearance.baseColor.replace("#", ""),
-                        size: appearance.size.toString(),
-                        gap: appearance.gap.toString(),
-                        shape: appearance.shape,
-                        minOpacity: appearance.minOpacity.toString(),
-                        maxOpacity: appearance.maxOpacity.toString(),
-                    });
                     return `${window.location.origin}/api/share?${params.toString()}`;
                 })()}
             />
