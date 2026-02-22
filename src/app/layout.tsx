@@ -12,6 +12,7 @@ const grotesk = localFont({
 
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://cg.nitishk.dev"),
   title: "Contri Graph",
   description: "Visualize your GitHub contributions",
   applicationName: "Contri Graph",
