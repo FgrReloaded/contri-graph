@@ -2,6 +2,11 @@
   "name": "contri-graph",
   "version": "1.0.0",
   "description": "Show your GitHub contribution graph in the terminal",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x bin/contri-graph.js",
+    "clean": "rm -rf bin",
+    "prepublishOnly": "npm run build"
+  },
   "bin": {
     "contri-graph": "./bin/contri-graph.js"
   },
@@ -21,7 +26,12 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "typescript": "^5.9.2"
+  },
   "files": [
-    "bin/"
+    "bin/",
+    "contri-graph.sh"
   ]
 }
