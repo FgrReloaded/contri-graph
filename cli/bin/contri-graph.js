@@ -58,6 +58,60 @@ const SHELL_SETUP = `
   # Or use the shell script for faster startup (no Node overhead):
   bash /path/to/contri-graph.sh
 `;
+const INTENSITY_CHARS = new Set(["·", "░", "▒", "▓", "█"]);
+function stripAnsi(input) {
+    let outputText = "";
+    for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        if (char === "\u001b" && input[i + 1] === "[") {
+            i += 2;
+            while (i < input.length && input[i] !== "m") {
+                i++;
+            }
+            continue;
+        }
+        outputText += char;
+    }
+    return outputText;
+}
+function widenGraphLine(line) {
+    let widened = "";
+    for (const char of line) {
+        widened += char;
+        if (INTENSITY_CHARS.has(char)) {
+            widened += " ";
+        }
+    }
+    return widened;
+}
+function formatGraphOutput(raw, compact) {
+    if (compact)
+        return raw;
+    const lines = raw.split("\n");
+    const rowStart = lines.findIndex((line) => {
+        const plain = stripAnsi(line);
+        return /^(?:\s*)(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\s+/.test(plain) && /[·░▒▓█]/.test(plain);
+    });
+    if (rowStart === -1)
+        return raw;
+    const out = [...lines];
+    // Expand month label spacing so labels still align with widened columns.
+    const monthLineIndex = rowStart - 1;
+    if (monthLineIndex >= 0) {
+        out[monthLineIndex] = out[monthLineIndex].replace(/ {2,}/g, (gap) => " ".repeat(gap.length * 2));
+    }
+    for (let i = rowStart; i < out.length; i++) {
+        const plain = stripAnsi(out[i]);
+        if (/^(?:\s*)(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\s+/.test(plain) && /[·░▒▓█]/.test(plain)) {
+            out[i] = widenGraphLine(out[i]);
+            continue;
+        }
+        if (plain.includes("Less") && plain.includes("More") && /[·░▒▓█]/.test(plain)) {
+            out[i] = widenGraphLine(out[i]);
+        }
+    }
+    return out.join("\n");
+}
 function parseArgs(argv) {
     const args = argv.slice(2);
     const opts = {
@@ -320,7 +374,7 @@ async function main() {
             process.exit(1);
         }
         const text = await res.text();
-        console.log(text);
+        console.log(formatGraphOutput(text, opts.compact));
     }
     catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err);

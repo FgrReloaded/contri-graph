@@ -72,6 +72,67 @@ type CliOptions = {
   targetShell: string;
 };
 
+const INTENSITY_CHARS = new Set(["·", "░", "▒", "▓", "█"]);
+function stripAnsi(input: string): string {
+  let outputText = "";
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i];
+    if (char === "\u001b" && input[i + 1] === "[") {
+      i += 2;
+      while (i < input.length && input[i] !== "m") {
+        i++;
+      }
+      continue;
+    }
+    outputText += char;
+  }
+  return outputText;
+}
+
+function widenGraphLine(line: string): string {
+  let widened = "";
+  for (const char of line) {
+    widened += char;
+    if (INTENSITY_CHARS.has(char)) {
+      widened += " ";
+    }
+  }
+  return widened;
+}
+
+function formatGraphOutput(raw: string, compact: boolean): string {
+  if (compact) return raw;
+
+  const lines = raw.split("\n");
+  const rowStart = lines.findIndex((line) => {
+    const plain = stripAnsi(line);
+    return /^(?:\s*)(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\s+/.test(plain) && /[·░▒▓█]/.test(plain);
+  });
+
+  if (rowStart === -1) return raw;
+
+  const out = [...lines];
+
+  // Expand month label spacing so labels still align with widened columns.
+  const monthLineIndex = rowStart - 1;
+  if (monthLineIndex >= 0) {
+    out[monthLineIndex] = out[monthLineIndex].replace(/ {2,}/g, (gap) => " ".repeat(gap.length * 2));
+  }
+
+  for (let i = rowStart; i < out.length; i++) {
+    const plain = stripAnsi(out[i]);
+    if (/^(?:\s*)(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\s+/.test(plain) && /[·░▒▓█]/.test(plain)) {
+      out[i] = widenGraphLine(out[i]);
+      continue;
+    }
+    if (plain.includes("Less") && plain.includes("More") && /[·░▒▓█]/.test(plain)) {
+      out[i] = widenGraphLine(out[i]);
+    }
+  }
+
+  return out.join("\n");
+}
+
 function parseArgs(argv: string[]): CliOptions {
   const args = argv.slice(2);
   const opts: CliOptions = {
@@ -362,7 +423,7 @@ async function main(): Promise<void> {
       process.exit(1);
     }
     const text = await res.text();
-    console.log(text);
+    console.log(formatGraphOutput(text, opts.compact));
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     console.error(`Failed to connect to API: ${errorMessage}`);
