@@ -15,7 +15,7 @@ const HELP = `
   Usage:
     contri-graph <username>
     contri-graph --user <username> [options]
-    npx contri-graph <username>
+    npx contri-graph-cli <username>
 
   Options:
     --user, -u     GitHub username
@@ -43,15 +43,15 @@ const SHELL_SETUP = `
 
   # Bash (~/.bashrc):
   export CONTRI_GRAPH_USER="YOUR_USERNAME"
-  npx -y contri-graph "$CONTRI_GRAPH_USER"
+  npx -y contri-graph-cli "$CONTRI_GRAPH_USER"
 
   # Zsh (~/.zshrc):
   export CONTRI_GRAPH_USER="YOUR_USERNAME"
-  npx -y contri-graph "$CONTRI_GRAPH_USER"
+  npx -y contri-graph-cli "$CONTRI_GRAPH_USER"
 
   # Fish (~/.config/fish/config.fish):
   set -gx CONTRI_GRAPH_USER "YOUR_USERNAME"
-  npx -y contri-graph $CONTRI_GRAPH_USER
+  npx -y contri-graph-cli $CONTRI_GRAPH_USER
 
   # Or use the shell script for faster startup (no Node overhead):
   bash /path/to/contri-graph.sh
@@ -180,7 +180,7 @@ function getShellConfigPath(shell: ShellName): string {
 
 function buildManagedBlock(shell: ShellName): string {
   const command =
-    'if command -v contri-graph >/dev/null 2>&1; then contri-graph "$CONTRI_GRAPH_USER"; else npx -y contri-graph "$CONTRI_GRAPH_USER"; fi';
+    'if command -v contri-graph >/dev/null 2>&1; then contri-graph "$CONTRI_GRAPH_USER"; else npx -y contri-graph-cli "$CONTRI_GRAPH_USER"; fi';
 
   if (shell === "fish") {
     return `${BLOCK_START}
@@ -190,7 +190,7 @@ if status is-interactive
         if type -q contri-graph
             contri-graph $CONTRI_GRAPH_USER
         else
-            npx -y contri-graph $CONTRI_GRAPH_USER
+            npx -y contri-graph-cli $CONTRI_GRAPH_USER
         end
     end
 end

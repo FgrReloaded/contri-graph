@@ -1,6 +1,6 @@
 {
-  "name": "contri-graph",
-  "version": "1.0.0",
+  "name": "contri-graph-cli",
+  "version": "1.0.1",
   "description": "Show your GitHub contribution graph in the terminal",
   "scripts": {
     "build": "tsc -p tsconfig.json && chmod +x bin/contri-graph.js",
